@@ -29,7 +29,8 @@
   /* ── Lenis smooth scroll ─────────────────── */
   let lenis = null;
   if (!prefersReduced && typeof Lenis !== "undefined") {
-    lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+    // gentler wheel: violent flicks travel less, pinned sections keep their pace
+    lenis = new Lenis({ duration: 1.2, smoothWheel: true, wheelMultiplier: 0.85 });
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
     gsap.ticker.lagSmoothing(0);
@@ -314,29 +315,8 @@
       }
     });
 
-    // fast flicks blow through the section — once scrolling settles,
-    // ease to the nearest step so every stage is actually seen
-    if (lenis) {
-      const centers = [0.125, 0.375, 0.625, 0.875];
-      let snapTimer = null;
-      let snapping = false;
-      lenis.on("scroll", () => {
-        if (snapping) return;
-        clearTimeout(snapTimer);
-        snapTimer = setTimeout(() => {
-          const p = processST.progress;
-          if (p <= 0.04 || p >= 0.96) return; // near the edges: let the user leave freely
-          const target = centers.reduce((a, b) => (Math.abs(b - p) < Math.abs(a - p) ? b : a));
-          const y = processST.start + target * (processST.end - processST.start);
-          if (Math.abs(window.scrollY - y) < 4) return;
-          snapping = true;
-          lenis.scrollTo(y, {
-            duration: 0.8,
-            onComplete: () => { snapping = false; }
-          });
-        }, 180);
-      });
-    }
+    // no programmatic snapping: it fights rapid user input and makes
+    // sections "jump" — pacing comes from section height + gentle wheel
   }
 
   /* ── Projects: horizontal scroll ─────────── */
