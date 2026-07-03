@@ -44,7 +44,8 @@
   document.querySelectorAll("[data-split]").forEach((el) => {
     const text = el.textContent;
     el.textContent = "";
-    text.trim().split(/\s+/).forEach((word, wi, arr) => {
+    // split on regular whitespace only: nbsp keeps word pairs glued
+    text.trim().split(/[ \n\r\t]+/).forEach((word, wi, arr) => {
       const w = document.createElement("span");
       w.className = "word";
       w.setAttribute("aria-hidden", "true");
@@ -277,7 +278,7 @@
   /* ── Manifesto: words light up on scrub ──── */
   const manifestoText = document.getElementById("manifestoText");
   if (manifestoText) {
-    const words = manifestoText.textContent.trim().split(/\s+/);
+    const words = manifestoText.textContent.trim().split(/[ \n\r\t]+/);
     manifestoText.innerHTML = words.map((w) => `<span class="w">${w}</span>`).join(" ");
     const wordEls = manifestoText.querySelectorAll(".w");
     const sign = document.querySelector(".manifesto__sign");

@@ -40,6 +40,9 @@ body {
   overflow-x: hidden;
 }
 
+/* readable rag on both desktop and mobile: no orphans where supported */
+p, blockquote { text-wrap: pretty; }
+
 img, video { display: block; max-width: 100%; }
 a { color: inherit; text-decoration: none; }
 ul { list-style: none; }
@@ -395,6 +398,7 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
   font-family: var(--font-display); font-weight: 300;
   font-size: clamp(1.4rem, 3.6vw, 3.2rem);
   line-height: 1.45;
+  text-wrap: pretty;
 }
 .manifesto__text .w { color: rgba(236,232,225,.16); transition: color .2s linear; }
 .manifesto__text .w.is-lit { color: var(--bone); }
