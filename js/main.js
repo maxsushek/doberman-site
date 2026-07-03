@@ -178,36 +178,29 @@
   const menuBtn = document.getElementById("menuBtn");
   const menuBtnLabel = menuBtn.querySelector(".menu-btn__label");
   const menuImg = document.getElementById("menuImg");
-  const menuWords = menu.querySelectorAll("[data-menu-word]");
-  const menuAside = menu.querySelector(".menu__aside");
   let menuOpen = false;
   let pendingScroll = null; // section to scroll to once the menu has closed
-
-  const menuTL = gsap.timeline({ paused: true })
-    .set(menu, { visibility: "visible" })
-    .to(".menu__bg", { yPercent: 0, duration: 0.9, ease: "expo.inOut" }, 0)
-    .to(menuWords, { y: 0, yPercent: 0, duration: 0.9, stagger: 0.06, ease: "expo.out", overwrite: true }, 0.35)
-    .to(menuAside, { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }, 0.6);
-
-  // scroll AFTER Lenis restarts — a stopped Lenis silently ignores scrollTo
-  menuTL.eventCallback("onReverseComplete", () => {
-    gsap.set(menu, { visibility: "hidden" });
-    lenis?.start();
-    if (pendingScroll) { scrollTo(pendingScroll); pendingScroll = null; }
-  });
-
-  if (!prefersReduced) {
-    gsap.set(".menu__bg", { yPercent: -100 });
-    gsap.set(menuWords, { yPercent: 120 });
-  } else {
-    gsap.set(".menu__bg", { yPercent: 0 });
-  }
+  let closeTimer = null;
 
   const mainEl = document.getElementById("main");
   const headerLogo = document.querySelector(".header__logo");
+  const menuBg = menu.querySelector(".menu__bg");
 
-  // play()/reverse() resume from the current position, so toggling
-  // mid-animation is safe — no guard flag needed
+  // runs when the closing curtain has finished (or by fallback timer):
+  // Lenis must be running again BEFORE scrollTo, else it's ignored
+  const finishClose = () => {
+    if (menuOpen) return; // reopened mid-close
+    lenis?.start();
+    if (pendingScroll) { scrollTo(pendingScroll); pendingScroll = null; }
+  };
+  menuBg.addEventListener("transitionend", (e) => {
+    if (e.propertyName === "transform" && !menuOpen) {
+      clearTimeout(closeTimer);
+      finishClose();
+    }
+  });
+
+  // menu choreography lives in CSS (.is-open) — JS only flips state
   const toggleMenu = (force) => {
     const next = typeof force === "boolean" ? force : !menuOpen;
     if (next === menuOpen) return;
@@ -217,18 +210,19 @@
     menu.setAttribute("aria-hidden", String(!menuOpen));
     menuBtn.setAttribute("aria-expanded", String(menuOpen));
     menuBtnLabel.textContent = menuOpen ? menuBtnLabel.dataset.close : menuBtnLabel.dataset.open;
-    const instant = prefersReduced ? 1000 : 1;
     if (menuOpen) {
+      pendingScroll = null;
+      clearTimeout(closeTimer);
       lenis?.stop();
       mainEl?.setAttribute("inert", "");
       headerLogo?.setAttribute("inert", "");
       menu.querySelector(".menu__link")?.focus({ preventScroll: true });
-      menuTL.timeScale(1 * instant).play();
     } else {
       mainEl?.removeAttribute("inert");
       headerLogo?.removeAttribute("inert");
       menuBtn.focus({ preventScroll: true });
-      menuTL.timeScale(1.6 * instant).reverse();
+      clearTimeout(closeTimer);
+      closeTimer = setTimeout(finishClose, 950); // fallback if transitionend is missed
     }
   };
 

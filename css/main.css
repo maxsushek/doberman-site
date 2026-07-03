@@ -219,15 +219,20 @@ body.menu-open .menu-btn__lines i:first-child { transform: translateY(3.5px) rot
 body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translateY(-3.5px) rotate(-45deg); }
 
 /* ══════════════ MENU OVERLAY ══════════════ */
+/* menu choreography is pure CSS driven by .is-open —
+   deterministic, immune to JS animation state */
 .menu {
   position: fixed; inset: 0; z-index: 90;
   visibility: hidden; pointer-events: none;
+  transition: visibility 0s .85s;
 }
-.menu.is-open { visibility: visible; pointer-events: auto; }
+.menu.is-open { visibility: visible; pointer-events: auto; transition-delay: 0s; }
 .menu__bg {
   position: absolute; inset: 0; background: var(--ink-2);
   transform: translateY(-100%);
+  transition: transform .65s var(--ease-expo) .12s; /* closing: after the words drop */
 }
+.menu.is-open .menu__bg { transform: translateY(0); transition: transform .9s var(--ease-expo); }
 .menu__img {
   position: absolute; right: 0; top: 0; bottom: 0; width: 42%;
   background-size: cover; background-position: center;
@@ -259,14 +264,30 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
   font-size: clamp(2rem, 6vw, 4.6rem);
   line-height: 1.15;
   transform: translateY(120%);
-  transition: color .4s;
+  transition: transform .4s var(--ease-out), color .4s;
 }
+.menu.is-open .menu__word {
+  transform: translateY(0);
+  transition: transform .9s var(--ease-out), color .4s;
+}
+/* staggered rise on open */
+.menu.is-open .menu__list li:nth-child(1) .menu__word { transition-delay: .30s, 0s; }
+.menu.is-open .menu__list li:nth-child(2) .menu__word { transition-delay: .36s, 0s; }
+.menu.is-open .menu__list li:nth-child(3) .menu__word { transition-delay: .42s, 0s; }
+.menu.is-open .menu__list li:nth-child(4) .menu__word { transition-delay: .48s, 0s; }
+.menu.is-open .menu__list li:nth-child(5) .menu__word { transition-delay: .54s, 0s; }
+.menu.is-open .menu__list li:nth-child(6) .menu__word { transition-delay: .60s, 0s; }
 .menu__link:hover .menu__word { color: var(--copper-bright); }
 .menu__aside {
   display: flex; flex-direction: column; gap: 2.4rem;
   min-width: 220px;
   font-size: 14px; color: var(--bone-dim);
   opacity: 0; transform: translateY(24px);
+  transition: opacity .35s, transform .35s;
+}
+.menu.is-open .menu__aside {
+  opacity: 1; transform: none;
+  transition: opacity .8s var(--ease-out) .55s, transform .8s var(--ease-out) .55s;
 }
 .menu__aside a:hover { color: var(--copper-bright); }
 .menu__socials { display: flex; flex-direction: column; gap: .4rem; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .15em; }
