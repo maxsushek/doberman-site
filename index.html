@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>DOBERMAN — Відбудова Харкова. Місто житиме</title>
+  <meta name="description" content="Doberman Corp — команда відбудови Харкова. Повний цикл відновлення: обстеження, BIM-проєктування, будівництво, цифрова звітність. Місто житиме.">
+  <link rel="canonical" href="https://doberman-corp.com.ua/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="DOBERMAN — Відбудова Харкова">
+  <meta property="og:description" content="Місто, яке неможливо зламати. Повний цикл відбудови: від обстеження до повернення життя.">
+  <meta property="og:url" content="https://doberman-corp.com.ua/">
+  <meta property="og:locale" content="uk_UA">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=1200&auto=format&fit=crop">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#0b0b0c">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="apple-touch-icon" href="assets/touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500;600;800&family=Manrope:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/main.css?v=5">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Doberman Corp",
+    "url": "https://doberman-corp.com.ua/",
+    "description": "Команда відбудови Харкова. Повний цикл відновлення обʼєктів.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "вул. Космічна, 21",
+      "addressLocality": "Харків",
+      "postalCode": "61165",
+      "addressCountry": "UA"
+    },
+    "telephone": "+380983185371"
+  }
+  </script>
+
+  <noscript>
+    <style>
+      .preloader, .cursor, .grain { display: none !important; }
+      [data-reveal] { opacity: 1 !important; transform: none !important; }
+    </style>
+  </noscript>
+
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+</head>
+<body data-theme="dark">
+
+  <!-- ══════════════ PRELOADER ══════════════ -->
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader__inner">
+      <img class="preloader__logo" src="assets/logo_h230.webp" alt="Doberman Corp" width="157" height="230">
+      <p class="preloader__slogan">Місто, яке неможливо зламати</p>
+    </div>
+    <div class="preloader__counter"><span id="loaderCount">00</span></div>
+    <div class="preloader__bar"><span id="loaderBar"></span></div>
+  </div>
+
+  <!-- ══════════════ CURSOR ══════════════ -->
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__dot"></div>
+    <div class="cursor__ring"><span class="cursor__label"></span></div>
+  </div>
+
+  <!-- ══════════════ GRAIN ══════════════ -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- ══════════════ HEADER ══════════════ -->
+  <header class="header" id="header">
+    <a href="#" class="header__logo" aria-label="Doberman Corp — на головну" data-magnetic>
+      <span class="logo-paw" aria-hidden="true"><img src="assets/logo_h230.webp" alt=""></span>
+      <span class="header__wordmark">DOBERMAN<em>corp</em></span>
+    </a>
+
+    <div class="header__meta" aria-hidden="true">
+      <span class="header__meta-line"></span>
+      <span>Харків — 49.99° N, 36.23° E</span>
+    </div>
+
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="menuOverlay" data-magnetic>
+      <span class="menu-btn__label" data-open="меню" data-close="закрити">меню</span>
+      <span class="menu-btn__lines"><i></i><i></i></span>
+    </button>
+  </header>
+
+  <!-- ══════════════ MENU OVERLAY ══════════════ -->
+  <nav class="menu" id="menuOverlay" aria-hidden="true">
+    <div class="menu__bg"></div>
+    <div class="menu__img" id="menuImg" aria-hidden="true"></div>
+    <div class="menu__inner">
+      <ul class="menu__list">
+        <li><a href="#hero" class="menu__link" data-img="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=1200&auto=format&fit=crop"><span class="menu__idx">01</span><span class="menu__word" data-menu-word>Головна</span></a></li>
+        <li><a href="#projects" class="menu__link" data-img="https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=1200&auto=format&fit=crop"><span class="menu__idx">02</span><span class="menu__word" data-menu-word>Проєкти</span></a></li>
+        <li><a href="#process" class="menu__link" data-img="https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1200&auto=format&fit=crop"><span class="menu__idx">03</span><span class="menu__word" data-menu-word>Цикл</span></a></li>
+        <li><a href="#digital" class="menu__link" data-img="https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1200&auto=format&fit=crop"><span class="menu__idx">04</span><span class="menu__word" data-menu-word>Технології</span></a></li>
+        <li><a href="#values" class="menu__link" data-img="https://images.unsplash.com/photo-1449157291145-7efd050a4d0e?q=80&w=1200&auto=format&fit=crop"><span class="menu__idx">05</span><span class="menu__word" data-menu-word>Принципи</span></a></li>
+        <li><a href="#contact" class="menu__link" data-img="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop"><span class="menu__idx">06</span><span class="menu__word" data-menu-word>Контакти</span></a></li>
+      </ul>
+      <div class="menu__aside">
+        <div class="menu__contact">
+          <span class="menu__cap">офіс</span>
+          <p>вул. Космічна, 21<br>Харків, 61165</p>
+        </div>
+        <div class="menu__contact">
+          <span class="menu__cap">звʼязок</span>
+          <p><a href="tel:+380983185371">+38 098 318 53 71</a><br><a href="mailto:info@doberman-corp.com.ua">info@doberman-corp.com.ua</a></p>
+        </div>
+        <div class="menu__socials">
+          <!-- TODO: замінити Facebook/YouTube на реальні профілі компанії -->
+          <a href="https://www.instagram.com/doberman_corp" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://www.facebook.com" target="_blank" rel="noopener">Facebook</a>
+          <a href="https://www.youtube.com" target="_blank" rel="noopener">YouTube</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="main">
+
+    <!-- ══════════════ HERO ══════════════ -->
+    <section class="hero" id="hero">
+      <div class="hero__media">
+        <video class="hero__video" id="heroVideo" autoplay muted loop playsinline
+               poster="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=2400&auto=format&fit=crop">
+          <source src="https://videos.pexels.com/video-files/1826904/1826904-hd_1920_1080_24fps.mp4" type="video/mp4">
+          <source src="https://videos.pexels.com/video-files/2818546/2818546-hd_1920_1080_24fps.mp4" type="video/mp4">
+        </video>
+        <div class="hero__shade"></div>
+      </div>
+
+      <div class="hero__content">
+        <p class="hero__eyebrow"><span class="hero__eyebrow-line"></span>відбудова харкова</p>
+        <h1 class="hero__title">
+          <span class="hero__line"><span data-split>Місто,</span></span>
+          <span class="hero__line hero__line--outline"><span data-split>яке неможливо</span></span>
+          <span class="hero__line"><span data-split>зламати</span></span>
+        </h1>
+        <p class="hero__sub">Doberman Corp — повний цикл відновлення.<br>Від обстеження до повернення життя.</p>
+      </div>
+
+      <div class="hero__foot">
+        <a href="#manifesto" class="hero__scroll" data-magnetic aria-label="Прокрутити вниз">
+          <span>скроль</span>
+          <span class="hero__scroll-line"><i></i></span>
+        </a>
+        <div class="hero__foot-right">
+          <button class="hero__pause" id="videoToggle" aria-label="Зупинити відео" aria-pressed="false">
+            <span data-pause="стоп" data-play="грати">стоп</span>
+          </button>
+          <div class="hero__coords" aria-hidden="true">49.9935° N — 36.2304° E<br>Kharkiv, UA</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ MANIFESTO ══════════════ -->
+    <section class="manifesto" id="manifesto">
+      <div class="manifesto__sticky">
+        <p class="manifesto__cap">маніфест</p>
+        <p class="manifesto__text" id="manifestoText">
+          Ми не просто відновлюємо стіни. Ми повертаємо людям дім, вулицям — світло, місту — майбутнє. Обстеження, проєкт, будівництво — і знову життя.
+        </p>
+        <p class="manifesto__sign">— команда DOBERMAN</p>
+      </div>
+    </section>
+
+    <!-- ══════════════ PROCESS / FULL CYCLE ══════════════ -->
+    <section class="process" id="process">
+      <div class="process__pin">
+        <div class="process__media">
+          <figure class="process__img is-active" style="background-image:url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=1800&auto=format&fit=crop')"></figure>
+          <figure class="process__img" style="background-image:url('https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=1800&auto=format&fit=crop')"></figure>
+          <figure class="process__img" style="background-image:url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=1800&auto=format&fit=crop')"></figure>
+          <figure class="process__img" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1800&auto=format&fit=crop')"></figure>
+        </div>
+        <div class="process__side">
+          <h2 class="section-cap">повний цикл</h2>
+          <div class="process__steps">
+            <article class="process__step is-active">
+              <span class="process__num">01</span>
+              <h3>Обстеження</h3>
+              <p>Аналізуємо кожну тріщину. Чесна діагностика — основа всіх рішень.</p>
+            </article>
+            <article class="process__step">
+              <span class="process__num">02</span>
+              <h3>Проєктування</h3>
+              <p>BIM-модель до цеглини. Цифровий двійник майбутнього обʼєкта.</p>
+            </article>
+            <article class="process__step">
+              <span class="process__num">03</span>
+              <h3>Відбудова</h3>
+              <p>Власні бригади, контроль якості, цифрова звітність щотижня.</p>
+            </article>
+            <article class="process__step">
+              <span class="process__num">04</span>
+              <h3>Життя</h3>
+              <p>Передаємо ключі. Повертаємо не квадратні метри — повертаємо дім.</p>
+            </article>
+          </div>
+          <div class="process__progress"><span id="processBar"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ PROJECTS — HORIZONTAL ══════════════ -->
+    <section class="projects" id="projects">
+      <div class="projects__head">
+        <p class="section-cap">проєкти</p>
+        <h2 class="projects__title"><span data-split>Обʼєкт за обʼєктом</span></h2>
+      </div>
+      <div class="projects__pin" id="projectsPin">
+        <div class="projects__track" id="projectsTrack">
+
+          <article class="pcard" data-cursor="дивитись">
+            <div class="pcard__imgwrap"><img class="pcard__img" src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1400&auto=format&fit=crop" alt="Відновлений житловий будинок, с. Руська Лозова" loading="lazy"></div>
+            <div class="pcard__meta">
+              <span class="pcard__idx">01</span>
+              <span class="pcard__status pcard__status--done">Завершено</span>
+            </div>
+            <h3 class="pcard__name">Руська Лозова</h3>
+            <p class="pcard__type">Відновлення житлового будинку</p>
+          </article>
+
+          <article class="pcard" data-cursor="дивитись">
+            <div class="pcard__imgwrap"><img class="pcard__img" src="https://images.unsplash.com/photo-1460317442991-0ec209397118?q=80&w=1400&auto=format&fit=crop" alt="Житлові будинки після капітального ремонту, Дергачі" loading="lazy"></div>
+            <div class="pcard__meta">
+              <span class="pcard__idx">02</span>
+              <span class="pcard__status pcard__status--done">Завершено</span>
+            </div>
+            <h3 class="pcard__name">Дергачі</h3>
+            <p class="pcard__type">7 будинків — капітальний ремонт</p>
+          </article>
+
+          <article class="pcard" data-cursor="дивитись">
+            <div class="pcard__imgwrap"><img class="pcard__img" src="https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1400&auto=format&fit=crop" alt="Відновлені житлові будинки, Старий Салтів" loading="lazy"></div>
+            <div class="pcard__meta">
+              <span class="pcard__idx">03</span>
+              <span class="pcard__status pcard__status--done">Завершено</span>
+            </div>
+            <h3 class="pcard__name">Старий Салтів</h3>
+            <p class="pcard__type">Житлові будинки</p>
+          </article>
+
+          <article class="pcard" data-cursor="дивитись">
+            <div class="pcard__imgwrap"><img class="pcard__img" src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1400&auto=format&fit=crop" alt="Будівництво протирадіаційного укриття, Чугуїв" loading="lazy"></div>
+            <div class="pcard__meta">
+              <span class="pcard__idx">04</span>
+              <span class="pcard__status">У роботі</span>
+            </div>
+            <h3 class="pcard__name">Чугуїв</h3>
+            <p class="pcard__type">Протирадіаційне укриття</p>
+          </article>
+
+          <article class="pcard" data-cursor="дивитись">
+            <div class="pcard__imgwrap"><img class="pcard__img" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1400&auto=format&fit=crop" alt="Обласна клінічна лікарня, Харків" loading="lazy"></div>
+            <div class="pcard__meta">
+              <span class="pcard__idx">05</span>
+              <span class="pcard__status">У роботі</span>
+            </div>
+            <h3 class="pcard__name">Обласна лікарня</h3>
+            <p class="pcard__type">Харків — відбудова корпусів</p>
+          </article>
+
+          <article class="pcard" data-cursor="дивитись">
+            <div class="pcard__imgwrap"><img class="pcard__img" src="https://images.unsplash.com/photo-1431576901776-e539bd916ba2?q=80&w=1400&auto=format&fit=crop" alt="Обласна дитяча лікарня, Харків" loading="lazy"></div>
+            <div class="pcard__meta">
+              <span class="pcard__idx">06</span>
+              <span class="pcard__status">У роботі</span>
+            </div>
+            <h3 class="pcard__name">Дитяча лікарня</h3>
+            <p class="pcard__type">Харків — відновлення дитячих відділень</p>
+          </article>
+
+          <a class="pcard pcard--all" href="#contact" data-cursor="усі">
+            <span class="pcard--all__arrow">→</span>
+            <span class="pcard--all__label">Усі проєкти</span>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════ DIGITAL / 3D ══════════════ -->
+    <section class="digital" id="digital">
+      <canvas class="digital__canvas" id="voxelCanvas" aria-hidden="true"></canvas>
+      <div class="digital__content">
+        <p class="section-cap">технології</p>
+        <h2 class="digital__title">
+          <span class="hero__line"><span data-split>Від цифри</span></span>
+          <span class="hero__line hero__line--outline"><span data-split>до цегли</span></span>
+        </h2>
+        <ul class="digital__list">
+          <li data-reveal>BIM-проєктування</li>
+          <li data-reveal>3D-візуалізація</li>
+          <li data-reveal>Цифрова звітність</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══════════════ VALUES ══════════════ -->
+    <section class="values" id="values">
+      <h2 class="section-cap">принципи</h2>
+      <ul class="values__list">
+        <li class="values__item" data-cursor="—">
+          <span class="values__idx">01</span>
+          <h3 class="values__word" data-split>Відкритість</h3>
+          <p class="values__desc">Працюємо прозоро: звіти, кошториси, доступ до обʼєкта.</p>
+        </li>
+        <li class="values__item" data-cursor="—">
+          <span class="values__idx">02</span>
+          <h3 class="values__word" data-split>Відповідальність</h3>
+          <p class="values__desc">Гарантія на роботи. Ми поруч і після передання ключів.</p>
+        </li>
+        <li class="values__item" data-cursor="—">
+          <span class="values__idx">03</span>
+          <h3 class="values__word" data-split>Точність</h3>
+          <p class="values__desc">Інженерна культура в кожній деталі — від паль до фарби.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- ══════════════ QUOTE ══════════════ -->
+    <section class="quote">
+      <div class="quote__media" data-parallax>
+        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=2000&auto=format&fit=crop" alt="Архітектура вечірнього міста" loading="lazy">
+      </div>
+      <blockquote class="quote__text">
+        <span data-split>Найкраща архітектура —</span><br>
+        <span data-split>та, в яку повертається життя.</span>
+      </blockquote>
+    </section>
+
+    <!-- ══════════════ CONTACT / FOOTER ══════════════ -->
+    <footer class="contact" id="contact">
+      <div class="contact__marquee" aria-hidden="true">
+        <div class="contact__marquee-track">
+          <span>відбудова — харків — doberman — відбудова — харків — doberman — </span>
+          <span>відбудова — харків — doberman — відбудова — харків — doberman — </span>
+        </div>
+      </div>
+
+      <div class="contact__main">
+        <p class="section-cap">контакти</p>
+        <a href="mailto:info@doberman-corp.com.ua" class="contact__cta" data-magnetic data-cursor="написати">
+          <span data-split>Поговорімо</span>
+          <span class="contact__cta-accent" data-split>про відбудову</span>
+        </a>
+      </div>
+
+      <div class="contact__grid">
+        <div>
+          <span class="menu__cap">офіс</span>
+          <p>вул. Космічна, 21<br>Харків, 61165, Україна</p>
+        </div>
+        <div>
+          <span class="menu__cap">звʼязок</span>
+          <p><a href="tel:+380983185371">+38 098 318 53 71</a><br><a href="mailto:info@doberman-corp.com.ua">info@doberman-corp.com.ua</a></p>
+        </div>
+        <div>
+          <span class="menu__cap">соцмережі</span>
+          <!-- TODO: замінити Facebook/YouTube на реальні профілі компанії -->
+          <p><a href="https://www.instagram.com/doberman_corp" target="_blank" rel="noopener">Instagram</a><br><a href="https://www.facebook.com" target="_blank" rel="noopener">Facebook</a><br><a href="https://www.youtube.com" target="_blank" rel="noopener">YouTube</a></p>
+        </div>
+        <div>
+          <span class="menu__cap">графік</span>
+          <p>пн–пт 9:00–18:00<br>Харків, UA</p>
+        </div>
+      </div>
+
+      <div class="contact__bottom">
+        <img class="footer__logo" src="assets/logo_h230.webp" alt="Doberman Corp — відбудова Харкова">
+        <p>© 2026 Doberman Corp — відбудова Харкова</p>
+        <a class="contact__up" href="#hero" id="toTop" data-magnetic data-cursor="вгору">нагору ↑</a>
+      </div>
+    </footer>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+  <script src="js/main.js?v=5" defer></script>
+  <script type="module" src="js/scene.js?v=5"></script>
+</body>
+</html>
