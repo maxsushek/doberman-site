@@ -239,24 +239,25 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 .menu__bg {
   position: absolute; inset: 0; background: var(--ink-2);
   transform: translateY(-100%);
-  transition: transform .65s var(--ease-expo) .12s; /* closing: after the words drop */
+  transition: transform .85s var(--ease-expo) .18s; /* closing: after the words drop */
 }
-.menu.is-open .menu__bg { transform: translateY(0); transition: transform .9s var(--ease-expo); }
+.menu.is-open .menu__bg { transform: translateY(0); transition: transform 1.2s var(--ease-expo); }
 /* right panel: a permanent image space with cinematic crossfades,
    dimmed under a scrim so the contacts always stay readable */
 .menu__img {
   position: absolute; right: 0; top: 0; bottom: 0; width: 44%;
   opacity: 0; pointer-events: none;
+  overflow: hidden; /* clip the scaling image so it never bleeds past the panel edge */
   isolation: isolate; /* contain the scrim z-index so it can't cover the contacts */
-  transition: opacity 1s var(--ease-out);
+  transition: opacity 1.2s var(--ease-out);
 }
-.menu.is-open .menu__img { opacity: 1; transition-delay: .35s; }
+.menu.is-open .menu__img { opacity: 1; transition-delay: .45s; }
 .menu__img-layer {
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
   filter: grayscale(45%) brightness(.5);
-  opacity: 0; transform: scale(1.045);
-  transition: opacity .9s var(--ease-out), transform 1.6s var(--ease-out);
+  opacity: 0; transform: scale(1.06);
+  transition: opacity 1.5s var(--ease-out), transform 3s var(--ease-out);
 }
 .menu__img-layer.is-front { opacity: 1; transform: scale(1); }
 .menu__img::after {
@@ -295,15 +296,15 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 }
 .menu.is-open .menu__word {
   transform: translateY(0);
-  transition: transform .9s var(--ease-out), color .4s;
+  transition: transform 1.25s var(--ease-expo), color .4s;
 }
-/* staggered rise on open */
-.menu.is-open .menu__list li:nth-child(1) .menu__word { transition-delay: .30s, 0s; }
-.menu.is-open .menu__list li:nth-child(2) .menu__word { transition-delay: .36s, 0s; }
-.menu.is-open .menu__list li:nth-child(3) .menu__word { transition-delay: .42s, 0s; }
-.menu.is-open .menu__list li:nth-child(4) .menu__word { transition-delay: .48s, 0s; }
-.menu.is-open .menu__list li:nth-child(5) .menu__word { transition-delay: .54s, 0s; }
-.menu.is-open .menu__list li:nth-child(6) .menu__word { transition-delay: .60s, 0s; }
+/* staggered rise on open — slower, more deliberate cascade */
+.menu.is-open .menu__list li:nth-child(1) .menu__word { transition-delay: .40s, 0s; }
+.menu.is-open .menu__list li:nth-child(2) .menu__word { transition-delay: .50s, 0s; }
+.menu.is-open .menu__list li:nth-child(3) .menu__word { transition-delay: .60s, 0s; }
+.menu.is-open .menu__list li:nth-child(4) .menu__word { transition-delay: .70s, 0s; }
+.menu.is-open .menu__list li:nth-child(5) .menu__word { transition-delay: .80s, 0s; }
+.menu.is-open .menu__list li:nth-child(6) .menu__word { transition-delay: .90s, 0s; }
 .menu__link:hover .menu__word { color: var(--copper-bright); }
 .menu__aside {
   display: flex; flex-direction: column; gap: 2.4rem;
@@ -316,7 +317,7 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 }
 .menu.is-open .menu__aside {
   opacity: 1; transform: none;
-  transition: opacity .8s var(--ease-out) .55s, transform .8s var(--ease-out) .55s;
+  transition: opacity 1.1s var(--ease-out) .8s, transform 1.1s var(--ease-out) .8s;
 }
 .menu__aside a:hover { color: var(--copper-bright); }
 .menu__socials { display: flex; flex-direction: column; gap: .4rem; font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .15em; }
@@ -446,12 +447,15 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
   display: grid; grid-template-columns: 1.15fr 1fr;
   overflow: hidden;
 }
-.process__media { position: relative; isolation: isolate; } /* contain image z-index locally */
+.process__media {
+  position: relative; isolation: isolate; /* contain image z-index locally */
+  overflow: hidden; /* clip the scaling image so it never bleeds past the media edge */
+}
 .process__img {
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
-  opacity: 0; transform: scale(1.05);
-  transition: opacity 1.1s var(--ease-out), transform 1.8s var(--ease-out);
+  opacity: 0; transform: scale(1.06);
+  transition: opacity 1.6s var(--ease-out), transform 3s var(--ease-out);
   filter: grayscale(35%) brightness(.75);
 }
 .process__img.is-active { opacity: 1; transform: scale(1); }
@@ -466,18 +470,18 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 .process__steps { position: relative; min-height: clamp(220px, 36vh, 340px); }
 .process__step {
   position: absolute; inset: 0;
-  opacity: 0; transform: translateY(30px);
-  transition: opacity .5s var(--ease-out), transform .5s var(--ease-out);
+  opacity: 0; transform: translateY(34px);
+  transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
   pointer-events: none;
 }
 .process__step.is-active {
   opacity: 1; transform: none;
   /* incoming waits a beat for the outgoing to clear — layered, not torn */
-  transition: opacity .9s var(--ease-expo) .12s, transform .9s var(--ease-expo) .12s;
+  transition: opacity 1.3s var(--ease-expo) .18s, transform 1.3s var(--ease-expo) .18s;
 }
 .process__step.is-leaving {
-  opacity: 0; transform: translateY(-22px);
-  transition: opacity .45s var(--ease-out), transform .45s var(--ease-out);
+  opacity: 0; transform: translateY(-26px);
+  transition: opacity .6s var(--ease-out), transform .6s var(--ease-out);
 }
 .process__num {
   font-family: var(--font-display); font-weight: 200;

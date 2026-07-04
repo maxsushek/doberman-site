@@ -225,7 +225,7 @@
       headerLogo?.removeAttribute("inert");
       menuBtn.focus({ preventScroll: true });
       clearTimeout(closeTimer);
-      closeTimer = setTimeout(finishClose, 950); // fallback if transitionend is missed
+      closeTimer = setTimeout(finishClose, 1200); // fallback if transitionend is missed
     }
   };
 

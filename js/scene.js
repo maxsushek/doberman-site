@@ -154,12 +154,13 @@ function loop() {
   if (!visible) return;
   const t = clock.getElapsedTime();
 
-  smoothTilt.x += (mouse.x - smoothTilt.x) * 0.04;
-  smoothTilt.y += (mouse.y - smoothTilt.y) * 0.04;
-  smoothBuild += (buildProgress - smoothBuild) * 0.06;
+  smoothTilt.x += (mouse.x - smoothTilt.x) * 0.03;
+  smoothTilt.y += (mouse.y - smoothTilt.y) * 0.03;
+  // slower catch-up = the tower assembles with unhurried, expensive weight
+  smoothBuild += (buildProgress - smoothBuild) * 0.035;
 
   // slow cinematic orbit + mouse tilt
-  const orbit = t * 0.045 + smoothTilt.x * 0.22;
+  const orbit = t * 0.03 + smoothTilt.x * 0.2;
   const radius = 25 - smoothBuild * 4;
   camera.position.x = Math.sin(orbit) * radius;
   camera.position.z = Math.cos(orbit) * radius;
