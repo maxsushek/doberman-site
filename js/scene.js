@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════
-   DOBERMAN — voxel tower (Three.js)
-   Chaos → assembly: метафора відбудови.
-   Scroll drives the build; mouse tilts the eye.
+   DOBERMAN — particles assemble the paw mark
+   Chaos → the brand itself: метафора відбудови,
+   що збирає знак Doberman. Scroll drives the build.
    ══════════════════════════════════════════════ */
 import * as THREE from "three";
 
@@ -16,86 +16,148 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true 
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x121214, 26, 60);
+scene.fog = new THREE.Fog(0x0b0b0c, 34, 68);
 
-const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 120);
-camera.position.set(14, 9, 24);
-camera.lookAt(0, 5, 0);
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 140);
+camera.position.set(0, 0, 32);
+camera.lookAt(2, 0, 0); // bias right so the left half is free for text
 
-/* ── lights ────────────────────────────────── */
-scene.add(new THREE.AmbientLight(0xecE8e1, 0.14));
-const key = new THREE.DirectionalLight(0xece8e1, 1.1);
-key.position.set(12, 18, 8);
+/* ── lights — bright enough that the mark reads clearly ─ */
+scene.add(new THREE.AmbientLight(0xece8e1, 0.6));
+const key = new THREE.DirectionalLight(0xfdfbf6, 1.5);
+key.position.set(-6, 10, 16);
 scene.add(key);
-const copper = new THREE.PointLight(0xb4885e, 60, 40, 1.8);
-copper.position.set(-8, 4, 10);
+const fill = new THREE.DirectionalLight(0xbfd0e0, 0.5);
+fill.position.set(10, -4, 8);
+scene.add(fill);
+const copper = new THREE.PointLight(0xb4885e, 90, 60, 1.7);
+copper.position.set(9, 2, 12);
 scene.add(copper);
 
-/* ── voxel tower layout ────────────────────── */
-// stepped tower silhouette: columns of varying height on a 7×7 grid
-const GRID = 7;
-const CELL = 1.05;
-const targets = [];
-const heights = [
-  [2, 3, 4, 4, 3, 2, 1],
-  [3, 5, 7, 7, 5, 3, 2],
-  [4, 7, 11, 12, 8, 4, 3],
-  [4, 8, 12, 14, 10, 5, 3],
-  [3, 6, 9, 11, 8, 4, 2],
-  [2, 4, 6, 7, 5, 3, 2],
-  [1, 2, 3, 3, 2, 2, 1]
-];
-for (let x = 0; x < GRID; x++) {
-  for (let z = 0; z < GRID; z++) {
-    const h = heights[x][z];
-    for (let y = 0; y < h; y++) {
-      targets.push(new THREE.Vector3(
-        (x - (GRID - 1) / 2) * CELL,
-        y * CELL + CELL / 2,
-        (z - (GRID - 1) / 2) * CELL
-      ));
-    }
+/* ── paw group (offset to the right) ───────── */
+const paw = new THREE.Group();
+paw.position.x = 6;
+scene.add(paw);
+
+/* materials */
+const boneMat = new THREE.MeshStandardMaterial({ color: 0xece8e1, roughness: 0.55, metalness: 0.12 });
+const copperMat = new THREE.MeshStandardMaterial({ color: 0xc79769, roughness: 0.4, metalness: 0.35, emissive: 0x2a1c10, emissiveIntensity: 0.6 });
+
+/* state filled once the target point cloud is ready */
+let COUNT = 0;
+let targets = [], scattered = [], delays = [], seeds = [], mesh = null, copperMesh = null, copperIdx = [];
+let copperSet = null;
+let ready = false;
+
+/* ── build particles from a list of world-space target points ─ */
+function buildParticles(pts) {
+  COUNT = pts.length;
+  const cube = 0.19;
+  const geo = new THREE.BoxGeometry(cube, cube, cube);
+
+  copperIdx = [];
+  for (let i = 0; i < COUNT; i++) if ((i * 37) % 100 < 11) copperIdx.push(i); // ~11% copper accents
+  copperSet = new Set(copperIdx);
+
+  mesh = new THREE.InstancedMesh(geo, boneMat, COUNT - copperIdx.length);
+  copperMesh = new THREE.InstancedMesh(geo, copperMat, copperIdx.length);
+  mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  copperMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  paw.add(mesh, copperMesh);
+
+  // remap so bone/copper instances index cleanly
+  targets = pts.map((p) => new THREE.Vector3(p.x, p.y, p.z));
+  for (let i = 0; i < COUNT; i++) {
+    const t = targets[i];
+    const a = (i * 2.399963) % (Math.PI * 2); // golden angle spread
+    const r = 16 + (i % 19) * 0.8;
+    scattered.push(new THREE.Vector3(
+      Math.cos(a) * r,
+      Math.sin(a) * r * 0.8,
+      -14 - ((i * 7) % 20)
+    ));
+    // assemble bottom-up-ish with a little per-particle jitter
+    delays.push(gsapNorm(t.y) * 0.4 + ((i * 13) % 100) / 100 * 0.3);
+    seeds.push(((i * 31) % 100) / 100);
   }
-}
-const COUNT = targets.length;
-
-/* scattered "ruin" start positions + per-voxel stagger */
-const scattered = [];
-const delays = [];
-const seeds = [];
-for (let i = 0; i < COUNT; i++) {
-  const t = targets[i];
-  const r = 10 + (i % 17) * 0.9;
-  const a = (i * 2.399963) % (Math.PI * 2); // golden angle — deterministic spread
-  scattered.push(new THREE.Vector3(
-    Math.cos(a) * r,
-    -3 + ((i * 7) % 23) * 0.35,
-    Math.sin(a) * r * 0.6
-  ));
-  delays.push((t.y / 16) * 0.55 + ((i * 13) % 100) / 100 * 0.25);
-  seeds.push(((i * 31) % 100) / 100);
+  ready = true;
 }
 
-const geo = new THREE.BoxGeometry(CELL * 0.92, CELL * 0.92, CELL * 0.92);
-const mat = new THREE.MeshLambertMaterial({ color: 0x1c1c1f });
-const mesh = new THREE.InstancedMesh(geo, mat, COUNT);
-mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-scene.add(mesh);
+function gsapNorm(y) { return THREE.MathUtils.clamp((8 - y) / 16, 0, 1); }
 
-/* copper "core" voxels — a warm seam inside the tower */
-const copperMat = new THREE.MeshLambertMaterial({ color: 0xb4885e, emissive: 0x3d2a18 });
-const copperIdx = [];
-for (let i = 0; i < COUNT; i += 23) copperIdx.push(i);
-const copperMesh = new THREE.InstancedMesh(geo, copperMat, copperIdx.length);
-copperMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-scene.add(copperMesh);
+/* ── sample the real logo → point cloud ────── */
+function sampleLogo() {
+  return new Promise((resolve) => {
+    const im = new Image();
+    im.crossOrigin = "anonymous";
+    im.onload = () => {
+      const W = 150;
+      const cv = document.createElement("canvas");
+      const pawH = Math.round(im.height * 0.80); // top part only — skip the wordmark
+      cv.width = W; cv.height = Math.round(W * pawH / im.width);
+      const cx = cv.getContext("2d");
+      cx.drawImage(im, 0, 0, im.width, pawH, 0, 0, cv.width, cv.height);
+      const d = cx.getImageData(0, 0, cv.width, cv.height).data;
 
-/* ground grid — architectural drawing feel */
-const gridHelper = new THREE.GridHelper(44, 44, 0x2a2a2e, 0x1a1a1d);
-gridHelper.position.y = 0;
-scene.add(gridHelper);
+      const raw = [];
+      for (let y = 0; y < cv.height; y++)
+        for (let x = 0; x < cv.width; x++)
+          if (d[(y * cv.width + x) * 4 + 3] > 110) raw.push([x, y]);
 
-/* ── scroll progress via ScrollTrigger ─────── */
+      // downsample to a clean particle count
+      const CAP = 2400;
+      const step = Math.max(1, Math.floor(raw.length / CAP));
+      const scale = 16 / cv.height;
+      const cxp = cv.width / 2, cyp = cv.height / 2, maxR = cv.height * 0.55;
+      const pts = [];
+      for (let i = 0; i < raw.length; i += step) {
+        const [x, y] = raw[i];
+        const dx = x - cxp, dy = y - cyp;
+        const dist = Math.hypot(dx, dy) / maxR;
+        const dome = 1.6 * Math.max(0, 1 - dist * dist); // bulge toward camera
+        pts.push({
+          x: dx * scale,
+          y: -dy * scale,
+          z: dome + (((i * 17) % 10) / 10 - 0.5) * 0.5
+        });
+      }
+      resolve(pts);
+    };
+    im.onerror = () => resolve(null);
+    im.src = "assets/logo_h230.webp";
+  });
+}
+
+/* ── procedural paw fallback (5 pads) ──────── */
+function proceduralPaw() {
+  const pads = [
+    { cx: 0, cy: -3.2, rx: 3.4, ry: 3.1, n: 900 },   // main pad
+    { cx: -3.4, cy: 1.6, rx: 1.4, ry: 1.9, n: 300 }, // toes
+    { cx: -1.2, cy: 3.4, rx: 1.4, ry: 2.0, n: 300 },
+    { cx: 1.2, cy: 3.4, rx: 1.4, ry: 2.0, n: 300 },
+    { cx: 3.4, cy: 1.6, rx: 1.4, ry: 1.9, n: 300 }
+  ];
+  const pts = [];
+  pads.forEach((p) => {
+    let placed = 0, guard = 0;
+    while (placed < p.n && guard < p.n * 40) {
+      guard++;
+      const u = ((guard * 0.618) % 1) * 2 - 1;
+      const v = ((guard * 0.379) % 1) * 2 - 1;
+      if (u * u + v * v <= 1) {
+        const x = p.cx + u * p.rx, y = p.cy + v * p.ry;
+        const dist = Math.hypot(x, y) / 6;
+        pts.push({ x, y, z: 1.4 * Math.max(0, 1 - dist * dist) + (((placed * 7) % 10) / 10 - 0.5) * 0.5 });
+        placed++;
+      }
+    }
+  });
+  return pts;
+}
+
+sampleLogo().then((pts) => buildParticles(pts && pts.length > 400 ? pts : proceduralPaw()));
+
+/* ── scroll progress ───────────────────────── */
 let buildProgress = prefersReduced ? 1 : 0;
 if (!prefersReduced && window.ScrollTrigger) {
   window.ScrollTrigger.create({
@@ -122,9 +184,11 @@ const resize = () => {
   const h = canvas.clientHeight || window.innerHeight;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
+  // pull the paw a bit toward centre on narrow screens
+  paw.position.x = w < 900 ? 0 : 6;
+  camera.lookAt(w < 900 ? 0 : 2, 0, 0);
   camera.updateProjectionMatrix();
-  // reduced-motion has no render loop — repaint the static frame
-  if (prefersReduced) renderer.render(scene, camera);
+  if (prefersReduced && ready) renderer.render(scene, camera);
 };
 resize();
 window.addEventListener("resize", resize);
@@ -134,6 +198,9 @@ const dummy = new THREE.Object3D();
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 let visible = false;
 let rafId = null;
+let smoothBuild = prefersReduced ? 1 : 0;
+let smoothTiltX = 0, smoothTiltY = 0;
+const clock = new THREE.Clock();
 
 if (!prefersReduced) {
   const io = new IntersectionObserver((entries) => {
@@ -143,75 +210,53 @@ if (!prefersReduced) {
   io.observe(section);
 }
 
-let smoothTilt = { x: 0, y: 0 };
-// scroll drives the TARGET; the scene eases toward it — the camera and
-// the assembly never move sharply no matter how violent the scroll is
-let smoothBuild = prefersReduced ? 1 : 0;
-const clock = new THREE.Clock();
-
 function loop() {
   rafId = null;
   if (!visible) return;
   const t = clock.getElapsedTime();
 
-  smoothTilt.x += (mouse.x - smoothTilt.x) * 0.03;
-  smoothTilt.y += (mouse.y - smoothTilt.y) * 0.03;
-  // slower catch-up = the tower assembles with unhurried, expensive weight
-  smoothBuild += (buildProgress - smoothBuild) * 0.035;
+  smoothTiltX += (mouse.x - smoothTiltX) * 0.03;
+  smoothTiltY += (mouse.y - smoothTiltY) * 0.03;
+  smoothBuild += (buildProgress - smoothBuild) * 0.045;
 
-  // slow cinematic orbit + mouse tilt
-  const orbit = t * 0.03 + smoothTilt.x * 0.2;
-  const radius = 25 - smoothBuild * 4;
-  camera.position.x = Math.sin(orbit) * radius;
-  camera.position.z = Math.cos(orbit) * radius;
-  camera.position.y = 9 - smoothTilt.y * 2 + smoothBuild * 1.5;
-  camera.lookAt(0, 4.5 + smoothBuild * 1.5, 0);
+  // gentle front-facing sway — the mark stays readable, never spins away
+  paw.rotation.y = Math.sin(t * 0.25) * 0.14 + smoothTiltX * 0.28;
+  paw.rotation.x = Math.cos(t * 0.2) * 0.05 - smoothTiltY * 0.14;
 
-  let ci = 0;
-  for (let i = 0; i < COUNT; i++) {
-    const p = Math.max(0, Math.min(1, (smoothBuild * 1.55 - delays[i]) / 0.6));
-    const e = easeOutCubic(p);
-    const from = scattered[i];
-    const to = targets[i];
+  if (ready) {
+    let bi = 0, ci = 0;
+    for (let i = 0; i < COUNT; i++) {
+      const p = Math.max(0, Math.min(1, (smoothBuild * 1.5 - delays[i]) / 0.55));
+      const e = easeOutCubic(p);
+      const from = scattered[i], to = targets[i];
+      const drift = (1 - e) * Math.sin(t * 0.8 + seeds[i] * 12) * 0.35;
 
-    // idle float for unassembled voxels
-    const drift = (1 - e) * Math.sin(t * 0.8 + seeds[i] * 12) * 0.4;
-
-    dummy.position.set(
-      from.x + (to.x - from.x) * e,
-      from.y + (to.y - from.y) * e + drift,
-      from.z + (to.z - from.z) * e
-    );
-    const rot = (1 - e) * seeds[i] * Math.PI * 2;
-    dummy.rotation.set(rot, rot * 0.7, rot * 0.3);
-    const s = 0.4 + e * 0.6;
-    dummy.scale.set(s, s, s);
-    dummy.updateMatrix();
-    mesh.setMatrixAt(i, dummy.matrix);
-
-    if (ci < copperIdx.length && copperIdx[ci] === i) {
-      // clearly larger than the base voxel so the shells never z-fight
-      dummy.scale.multiplyScalar(1.06);
+      dummy.position.set(
+        from.x + (to.x - from.x) * e,
+        from.y + (to.y - from.y) * e + drift,
+        from.z + (to.z - from.z) * e
+      );
+      const rot = (1 - e) * seeds[i] * Math.PI * 2;
+      dummy.rotation.set(rot, rot * 0.7, rot * 0.3);
+      const s = 0.35 + e * 0.65;
+      dummy.scale.set(s, s, s);
       dummy.updateMatrix();
-      copperMesh.setMatrixAt(ci, dummy.matrix);
-      ci++;
-    }
-  }
-  mesh.instanceMatrix.needsUpdate = true;
-  copperMesh.instanceMatrix.needsUpdate = true;
 
-  // copper light breathes — softly, no glow spikes
-  copper.intensity = 40 + Math.sin(t * 1.1) * 8 + smoothBuild * 26;
+      if (copperSet.has(i)) { copperMesh.setMatrixAt(ci++, dummy.matrix); }
+      else { mesh.setMatrixAt(bi++, dummy.matrix); }
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    copperMesh.instanceMatrix.needsUpdate = true;
+    copper.intensity = 70 + Math.sin(t * 1.1) * 10 + smoothBuild * 30;
+  }
 
   renderer.render(scene, camera);
   rafId = requestAnimationFrame(loop);
 }
 
 if (prefersReduced) {
-  // static assembled render
-  buildProgress = 1;
-  smoothBuild = 1;
-  visible = true;
-  loop();
-  visible = false;
+  // static assembled render once the cloud is ready
+  buildProgress = 1; smoothBuild = 1; visible = true;
+  const waitReady = () => { if (ready) { loop(); visible = false; } else setTimeout(waitReady, 60); };
+  waitReady();
 }

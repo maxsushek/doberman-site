@@ -285,6 +285,16 @@
       });
     });
 
+    // brand caption rises in beside the assembling paw
+    const brand = document.querySelector(".digital__brand");
+    if (brand) {
+      ScrollTrigger.create({
+        trigger: ".digital", start: "top 55%",
+        onEnter: () => brand.classList.add("is-in"),
+        onLeaveBack: () => brand.classList.remove("is-in")
+      });
+    }
+
     // char reveals outside hero (hero handled by intro)
     document.querySelectorAll(".projects__title, .values__word, .quote__text > span, .contact__cta > span, .digital__title .hero__line").forEach((el) => {
       const chars = el.querySelectorAll(".char");
