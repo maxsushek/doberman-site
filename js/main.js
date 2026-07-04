@@ -371,19 +371,12 @@
     const pin = document.getElementById("projectsPin");
     const getDist = () => track.scrollWidth - window.innerWidth;
 
-    // the card passing through the viewport centre lights up — its name
-    // turns copper and its image comes a touch more alive; the eye is led
-    // to the project you're actually looking at
-    const cards = [...track.querySelectorAll(".pcard")];
-    const markFocus = () => {
-      const mid = window.innerWidth / 2;
-      let best = null, bestDist = Infinity;
-      for (const card of cards) {
-        const r = card.getBoundingClientRect();
-        const d = Math.abs((r.left + r.width / 2) - mid);
-        if (d < bestDist) { bestDist = d; best = card; }
-      }
-      for (const card of cards) card.classList.toggle("is-focus", card === best);
+    // highlight follows scroll progress: starts on card 1, then 2, 3… in
+    // order. Focused name turns copper, its image comes a touch more alive
+    const cards = [...track.querySelectorAll(".pcard:not(.pcard--all)")];
+    const markFocus = (self) => {
+      const idx = Math.round(self.progress * (cards.length - 1));
+      cards.forEach((c, i) => c.classList.toggle("is-focus", i === idx));
     };
 
     const tween = gsap.to(track, {
@@ -392,9 +385,9 @@
       scrollTrigger: {
         trigger: pin,
         start: "top 12%",
-        end: () => "+=" + getDist() * 1.4, // spread the travel over more scroll — gentler
+        end: () => "+=" + getDist() * 1.2, // a touch gentler than 1:1, not draggy
         pin: true,
-        scrub: 1.4,                        // buttery catch-up
+        scrub: 0.7,                        // tracks the wheel closely — feels direct
         invalidateOnRefresh: true,
         anticipatePin: 1,
         onUpdate: markFocus,
