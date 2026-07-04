@@ -371,19 +371,34 @@
     const pin = document.getElementById("projectsPin");
     const getDist = () => track.scrollWidth - window.innerWidth;
 
+    // physics: cards lean into the scroll by velocity, then settle to rest
+    let skew = 0, skewTarget = 0;
+    const skewSetter = gsap.quickSetter(track, "skewX", "deg");
+
     const tween = gsap.to(track, {
       x: () => -getDist(),
       ease: "none",
       scrollTrigger: {
         trigger: pin,
         start: "top 12%",
-        end: () => "+=" + getDist(),
+        end: () => "+=" + getDist() * 1.4, // spread the travel over more scroll — gentler
         pin: true,
-        scrub: 1,
+        scrub: 1.4,                        // buttery catch-up
         invalidateOnRefresh: true,
-        anticipatePin: 1
+        anticipatePin: 1,
+        onUpdate: (self) => {
+          skewTarget = gsap.utils.clamp(-4.5, 4.5, self.getVelocity() / -520);
+        }
       }
     });
+
+    const skewTick = () => {
+      skew += (skewTarget - skew) * 0.08; // ease toward the velocity lean
+      skewTarget *= 0.9;                   // decay to rest when scrolling stops
+      if (Math.abs(skew) < 0.002) skew = 0;
+      skewSetter(skew);
+    };
+    gsap.ticker.add(skewTick);
 
     // inner parallax per card
     document.querySelectorAll(".pcard__img").forEach((img) => {
@@ -398,6 +413,8 @@
         }
       });
     });
+
+    return () => gsap.ticker.remove(skewTick); // cleanup on matchMedia revert
   });
 
   /* ── Quote parallax ──────────────────────── */

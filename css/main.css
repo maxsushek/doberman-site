@@ -531,6 +531,12 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
   overflow: hidden;
   aspect-ratio: 4 / 5;
   background: var(--ink-2);
+  /* soft depth so cards sit in space, not flat on the page */
+  box-shadow: 0 26px 70px -34px rgba(0, 0, 0, .8);
+  transition: box-shadow .8s var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .pcard:hover .pcard__imgwrap { box-shadow: 0 40px 90px -30px rgba(0, 0, 0, .9); }
 }
 .pcard__img {
   width: 100%; height: 100%; object-fit: cover;
