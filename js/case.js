@@ -213,6 +213,15 @@
     document.querySelectorAll("[data-reveal-img] img").forEach((im) => { im.style.clipPath = "none"; im.style.transform = "none"; });
   }
 
+  /* ── Result: object drifts behind the numbers ── */
+  if (!prefersReduced) {
+    const rbg = document.querySelector(".result__bg");
+    if (rbg) gsap.fromTo(rbg, { yPercent: -6, scale: 1.04 }, {
+      yPercent: 6, ease: "none",
+      scrollTrigger: { trigger: ".result", start: "top bottom", end: "bottom top", scrub: true }
+    });
+  }
+
   /* ── Result: count-up ──────────────────────── */
   document.querySelectorAll(".num__val").forEach((el) => {
     const stat = el.dataset.static;
