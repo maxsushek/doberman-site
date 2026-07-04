@@ -182,23 +182,49 @@
     });
   }
 
-  /* ── Process stages: clip-path reveal + parallax ─ */
-  if (!prefersReduced) {
-    document.querySelectorAll(".stage").forEach((stage) => {
-      const img = stage.querySelector(".stage__media img");
-      gsap.to(img, {
-        clipPath: "inset(0% 0% 0% 0%)", ease: "none",
-        scrollTrigger: { trigger: stage, start: "top 85%", end: "top 35%", scrub: true }
-      });
-      gsap.fromTo(img, { yPercent: -8 }, {
-        yPercent: 8, ease: "none",
-        scrollTrigger: { trigger: stage, start: "top bottom", end: "bottom top", scrub: true }
-      });
-      const cap = stage.querySelector(".stage__cap");
-      gsap.from(cap, { y: 40, opacity: 0, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: stage, start: "top 60%" } });
+  /* ── Process film: pinned crossfade sequence ─── */
+  const pfPin = document.getElementById("pfPin");
+  if (pfPin && !prefersReduced) {
+    const imgs = pfPin.querySelectorAll(".pf__img");
+    const caps = pfPin.querySelectorAll(".pf__cap");
+    const bar  = document.getElementById("pfBar");
+    const n = imgs.length;
+    ScrollTrigger.create({
+      trigger: ".process-film", start: "top top", end: "bottom bottom", scrub: true,
+      onUpdate: (self) => {
+        const idx = Math.min(n - 1, Math.floor(self.progress * n));
+        imgs.forEach((im, i) => im.classList.toggle("is-active", i === idx));
+        caps.forEach((c, i)  => c.classList.toggle("is-active", i === idx));
+        if (bar) bar.style.width = (self.progress * 100).toFixed(1) + "%";
+      }
     });
-  } else {
-    document.querySelectorAll(".stage__media img").forEach((im) => { im.style.clipPath = "none"; im.style.transform = "none"; });
+  }
+
+  /* ── Works: cards cascade in ───────────────── */
+  const worksList = document.getElementById("worksList");
+  if (worksList) {
+    const cards = worksList.querySelectorAll("li");
+    if (!prefersReduced) {
+      gsap.from(cards, {
+        y: 34, opacity: 0, duration: .9, ease: "expo.out", stagger: 0.06,
+        scrollTrigger: { trigger: worksList, start: "top 78%" }
+      });
+    } else {
+      cards.forEach((c) => { c.style.opacity = 1; });
+    }
+  }
+
+  /* ── Result: number cards cascade in ───────── */
+  const resultCards = document.querySelectorAll(".result__list .num");
+  if (resultCards.length) {
+    if (!prefersReduced) {
+      gsap.from(resultCards, {
+        y: 40, opacity: 0, duration: 1.0, ease: "expo.out", stagger: 0.1,
+        scrollTrigger: { trigger: ".result__list", start: "top 80%" }
+      });
+    } else {
+      resultCards.forEach((c) => { c.style.opacity = 1; });
+    }
   }
 
   /* ── Gallery clip-path reveal ──────────────── */
