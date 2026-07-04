@@ -573,8 +573,14 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
   font-family: var(--font-display); font-weight: 400;
   font-size: clamp(1.3rem, 2.2vw, 1.9rem);
   text-transform: uppercase; letter-spacing: .02em;
+  transition: color .6s var(--ease-out);
 }
 .pcard__type { color: var(--bone-dim); font-size: 14px; margin-top: .4rem; }
+
+/* card at the viewport centre lights up as you scroll the rail */
+.pcard.is-focus .pcard__name { color: #B3885E; }
+.pcard.is-focus .pcard__img { filter: grayscale(12%) brightness(.96); scale: 1.06; }
+.pcard.is-focus .pcard__idx { color: var(--copper); }
 
 .pcard--all {
   display: flex; flex-direction: column; align-items: center; justify-content: center;

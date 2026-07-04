@@ -371,9 +371,20 @@
     const pin = document.getElementById("projectsPin");
     const getDist = () => track.scrollWidth - window.innerWidth;
 
-    // physics: cards lean into the scroll by velocity, then settle to rest
-    let skew = 0, skewTarget = 0;
-    const skewSetter = gsap.quickSetter(track, "skewX", "deg");
+    // the card passing through the viewport centre lights up — its name
+    // turns copper and its image comes a touch more alive; the eye is led
+    // to the project you're actually looking at
+    const cards = [...track.querySelectorAll(".pcard")];
+    const markFocus = () => {
+      const mid = window.innerWidth / 2;
+      let best = null, bestDist = Infinity;
+      for (const card of cards) {
+        const r = card.getBoundingClientRect();
+        const d = Math.abs((r.left + r.width / 2) - mid);
+        if (d < bestDist) { bestDist = d; best = card; }
+      }
+      for (const card of cards) card.classList.toggle("is-focus", card === best);
+    };
 
     const tween = gsap.to(track, {
       x: () => -getDist(),
@@ -386,19 +397,10 @@
         scrub: 1.4,                        // buttery catch-up
         invalidateOnRefresh: true,
         anticipatePin: 1,
-        onUpdate: (self) => {
-          skewTarget = gsap.utils.clamp(-4.5, 4.5, self.getVelocity() / -520);
-        }
+        onUpdate: markFocus,
+        onRefresh: markFocus
       }
     });
-
-    const skewTick = () => {
-      skew += (skewTarget - skew) * 0.08; // ease toward the velocity lean
-      skewTarget *= 0.9;                   // decay to rest when scrolling stops
-      if (Math.abs(skew) < 0.002) skew = 0;
-      skewSetter(skew);
-    };
-    gsap.ticker.add(skewTick);
 
     // inner parallax per card
     document.querySelectorAll(".pcard__img").forEach((img) => {
@@ -413,8 +415,6 @@
         }
       });
     });
-
-    return () => gsap.ticker.remove(skewTick); // cleanup on matchMedia revert
   });
 
   /* ── Quote parallax ──────────────────────── */
