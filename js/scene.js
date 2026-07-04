@@ -144,6 +144,9 @@ if (!prefersReduced) {
 }
 
 let smoothTilt = { x: 0, y: 0 };
+// scroll drives the TARGET; the scene eases toward it — the camera and
+// the assembly never move sharply no matter how violent the scroll is
+let smoothBuild = prefersReduced ? 1 : 0;
 const clock = new THREE.Clock();
 
 function loop() {
@@ -153,18 +156,19 @@ function loop() {
 
   smoothTilt.x += (mouse.x - smoothTilt.x) * 0.04;
   smoothTilt.y += (mouse.y - smoothTilt.y) * 0.04;
+  smoothBuild += (buildProgress - smoothBuild) * 0.06;
 
-  // slow orbit + mouse tilt
-  const orbit = t * 0.06 + smoothTilt.x * 0.22;
-  const radius = 25 - buildProgress * 4;
+  // slow cinematic orbit + mouse tilt
+  const orbit = t * 0.045 + smoothTilt.x * 0.22;
+  const radius = 25 - smoothBuild * 4;
   camera.position.x = Math.sin(orbit) * radius;
   camera.position.z = Math.cos(orbit) * radius;
-  camera.position.y = 9 - smoothTilt.y * 2 + buildProgress * 1.5;
-  camera.lookAt(0, 4.5 + buildProgress * 1.5, 0);
+  camera.position.y = 9 - smoothTilt.y * 2 + smoothBuild * 1.5;
+  camera.lookAt(0, 4.5 + smoothBuild * 1.5, 0);
 
   let ci = 0;
   for (let i = 0; i < COUNT; i++) {
-    const p = Math.max(0, Math.min(1, (buildProgress * 1.55 - delays[i]) / 0.6));
+    const p = Math.max(0, Math.min(1, (smoothBuild * 1.55 - delays[i]) / 0.6));
     const e = easeOutCubic(p);
     const from = scattered[i];
     const to = targets[i];
@@ -195,8 +199,8 @@ function loop() {
   mesh.instanceMatrix.needsUpdate = true;
   copperMesh.instanceMatrix.needsUpdate = true;
 
-  // copper light breathes
-  copper.intensity = 40 + Math.sin(t * 1.4) * 14 + buildProgress * 30;
+  // copper light breathes — softly, no glow spikes
+  copper.intensity = 40 + Math.sin(t * 1.1) * 8 + smoothBuild * 26;
 
   renderer.render(scene, camera);
   rafId = requestAnimationFrame(loop);
@@ -205,6 +209,7 @@ function loop() {
 if (prefersReduced) {
   // static assembled render
   buildProgress = 1;
+  smoothBuild = 1;
   visible = true;
   loop();
   visible = false;

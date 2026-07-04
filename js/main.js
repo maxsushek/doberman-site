@@ -157,7 +157,8 @@
   /* ── Magnetic elements ───────────────────── */
   if (finePointer && !prefersReduced) {
     document.querySelectorAll("[data-magnetic]").forEach((el) => {
-      const strength = 0.35;
+      // restrained pull, calm return — craftsmanship, not a special effect
+      const strength = 0.25;
       el.addEventListener("mousemove", (e) => {
         const r = el.getBoundingClientRect();
         gsap.to(el, {
@@ -167,7 +168,7 @@
         });
       });
       el.addEventListener("mouseleave", () => {
-        gsap.to(el, { x: 0, y: 0, duration: 0.8, ease: "elastic.out(1, 0.35)", overwrite: "auto" });
+        gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: "power4.out", overwrite: "auto" });
       });
     });
   }

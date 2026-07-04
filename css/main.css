@@ -165,6 +165,12 @@ body.menu-open { overflow: hidden; }
   80% { transform: translate(3%, 3%); }
 }
 
+/* cinema-lens vignette: takes the digital edge off every frame */
+.vignette {
+  position: fixed; inset: 0; z-index: 997; pointer-events: none;
+  background: radial-gradient(120% 95% at 50% 45%, transparent 58%, rgba(6, 6, 8, .34) 100%);
+}
+
 /* ══════════════ HEADER ══════════════ */
 .header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
@@ -549,6 +555,12 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
   background: var(--ink-2);
   overflow: clip;
 }
+/* faint warm key light behind the tower — felt, not seen */
+.digital::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(55% 45% at 30% 55%, rgba(180, 136, 94, .055), transparent 70%);
+}
+.digital__content { z-index: 2; }
 .digital__canvas {
   position: sticky; top: 0; display: block;
   width: 100%; height: 100svh;
@@ -574,7 +586,11 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 .digital__list li::before { content: ""; width: 24px; height: 1px; background: var(--copper); flex: none; }
 
 /* ══════════════ VALUES ══════════════ */
-.values { padding: clamp(6rem, 16vh, 12rem) var(--pad); background: var(--ink); }
+.values {
+  padding: clamp(6rem, 16vh, 12rem) var(--pad);
+  /* barely-there top light, like a room lit from a high window */
+  background: linear-gradient(180deg, #101012 0%, var(--ink) 34%);
+}
 .values__list { border-top: 1px solid var(--line); }
 .values__item {
   position: relative;
