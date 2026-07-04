@@ -250,9 +250,18 @@
     if (!url || url === imgUrl || imgLayers.length < 2) return;
     imgUrl = url;
     const next = 1 - imgFront;
-    imgLayers[next].style.backgroundImage = `url('${url}')`;
-    imgLayers[next].classList.add("is-front");
-    imgLayers[imgFront].classList.remove("is-front");
+    const inc = imgLayers[next];
+    const out = imgLayers[imgFront];
+    // incoming fades in ON TOP of the still-solid outgoing — the panel is
+    // never semi-transparent, so its edge can't seam against the backdrop
+    inc.style.transition = "none";
+    inc.classList.remove("is-front");
+    inc.style.backgroundImage = `url('${url}')`;
+    inc.style.zIndex = "2";
+    out.style.zIndex = "1";
+    void inc.offsetWidth;              // commit the hidden reset before fading
+    inc.style.transition = "";
+    inc.classList.add("is-front");     // out keeps is-front (opacity 1) beneath
     imgFront = next;
   };
   setMenuImage(menu.querySelector(".menu__link")?.dataset.img);
@@ -331,7 +340,20 @@
             s.classList.toggle("is-leaving", i === curStep);
             s.classList.toggle("is-active", i === target);
           });
-          processImgs.forEach((im, i) => im.classList.toggle("is-active", i === target));
+          // incoming image fades in on top of the outgoing (kept solid at
+          // z1) so the media never dips to semi-transparent — no seam
+          const inc = processImgs[target];
+          const out = processImgs[curStep];
+          processImgs.forEach((im) => { im.style.zIndex = "0"; });
+          if (out) out.style.zIndex = "1";
+          if (inc) {
+            inc.style.transition = "none";
+            inc.classList.remove("is-active");
+            inc.style.zIndex = "2";
+            void inc.offsetWidth;
+            inc.style.transition = "";
+            inc.classList.add("is-active");
+          }
           curStep = target;
         }
         processBar.style.width = (self.progress * 100) + "%";
