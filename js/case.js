@@ -162,8 +162,8 @@
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       gsap.to(el, { opacity: 1, y: 0, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
-    // lead / cta char rise
-    document.querySelectorAll(".chapter__lead, .case-cta__title .hero__line").forEach((el) => {
+    // lead / quote / cta char rise
+    document.querySelectorAll(".chapter__lead, .cquote__text, .case-cta__title .hero__line").forEach((el) => {
       const chars = el.querySelectorAll(".char"); if (!chars.length) return;
       gsap.fromTo(chars, { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: 0.015, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
@@ -230,13 +230,20 @@
     });
   });
 
-  /* ── Film block: play on click ─────────────── */
+  /* ── Film block: reveal the real YouTube chronicle on click ── */
   const frame = document.getElementById("filmFrame");
-  const video = document.getElementById("caseVideo");
-  if (frame && video) {
+  if (frame && frame.dataset.yt) {
     frame.addEventListener("click", () => {
-      if (frame.classList.contains("is-playing")) { video.pause(); frame.classList.remove("is-playing"); }
-      else { video.play().catch(() => {}); frame.classList.add("is-playing"); }
+      if (frame.classList.contains("is-playing")) return;
+      frame.classList.add("is-playing");
+      const yt = frame.dataset.yt;
+      const iframe = document.createElement("iframe");
+      iframe.className = "filmblock__iframe";
+      iframe.src = `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
+      iframe.title = "Хроніка реставрації — Руська Лозова";
+      iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
+      iframe.allowFullscreen = true;
+      frame.appendChild(iframe);
     });
   }
 
