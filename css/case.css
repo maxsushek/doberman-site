@@ -208,14 +208,15 @@
 }
 .stage::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, rgba(11,11,12,.45), rgba(11,11,12,.1) 40%, rgba(11,11,12,.85));
+  background: linear-gradient(180deg, rgba(11,11,12,.5), rgba(11,11,12,.15) 38%, rgba(11,11,12,.92));
 }
 .stage__cap { position: relative; z-index: 2; max-width: 40ch; }
 .stage__num {
   font-family: var(--font-display); font-weight: 200;
   font-size: clamp(3rem, 8vw, 7rem); line-height: 1; display: block;
-  color: transparent; -webkit-text-stroke: 1px rgba(236,232,225,.4);
+  color: transparent; -webkit-text-stroke: 1.4px rgba(236,232,225,.65);
   margin-bottom: 1rem;
+  filter: drop-shadow(0 2px 16px rgba(11,11,12,.7));
 }
 .stage__cap h3 {
   font-family: var(--font-display); font-weight: 400;
@@ -232,12 +233,12 @@
 .result__bg {
   position: absolute; inset: -8% 0; z-index: 0; pointer-events: none;
   background-size: cover; background-position: 50% 42%;
-  filter: grayscale(55%) brightness(.28) contrast(1.05);
+  filter: grayscale(70%) brightness(.15) contrast(1.02);
   will-change: transform;
 }
 .result::after {
   content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: radial-gradient(90% 90% at 50% 50%, rgba(11,11,12,.55), rgba(11,11,12,.9));
+  background: radial-gradient(85% 85% at 50% 45%, rgba(11,11,12,.74), rgba(11,11,12,.96));
 }
 .result > * { position: relative; z-index: 2; }
 .result .chapter__cap { justify-content: center; margin-bottom: clamp(3rem, 9vh, 6rem); }
@@ -248,6 +249,7 @@
   font-size: clamp(3.4rem, 11vw, 9rem); line-height: .9;
   letter-spacing: -.02em; color: var(--bone);
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 30px rgba(11, 11, 12, .8);
 }
 .num__label {
   font-family: var(--font-mono); font-size: clamp(11px, 1.1vw, 13px);
