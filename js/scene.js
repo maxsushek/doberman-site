@@ -18,13 +18,13 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x0b0b0c, 44, 92);
 
-const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 160);
-camera.position.set(0, 0, 46);      // pulled back — the mark sits in air
-camera.lookAt(2.4, 0, 0);           // bias right so the left column is free
+const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 170);
+camera.position.set(0, 0, 50);      // pulled back — the mark sits in air
+camera.lookAt(2.2, 0, 0);           // bias right so the left column is free
 
 /* ── lights — bright + a rim for crisp edges ─ */
-scene.add(new THREE.AmbientLight(0xece8e1, 0.62));
-const key = new THREE.DirectionalLight(0xfdfbf6, 1.55);
+scene.add(new THREE.AmbientLight(0xece8e1, 0.7));
+const key = new THREE.DirectionalLight(0xfdfbf6, 1.75);
 key.position.set(-7, 11, 18);
 scene.add(key);
 const fill = new THREE.DirectionalLight(0xbfd0e0, 0.45);
@@ -57,7 +57,11 @@ function buildParticles(pts, cubeSize) {
   const geo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
 
   copperSet = new Set();
-  for (let i = 0; i < COUNT; i++) if ((i * 41) % 100 < 8) copperSet.add(i); // ~8% copper accents
+  // ~5% copper, scattered (hashed) so it reads as warmth, not rows of specks
+  for (let i = 0; i < COUNT; i++) {
+    const h = (Math.sin(i * 12.9898) * 43758.5453) % 1;
+    if ((h < 0 ? h + 1 : h) < 0.05) copperSet.add(i);
+  }
 
   mesh = new THREE.InstancedMesh(geo, boneMat, COUNT - copperSet.size);
   copperMesh = new THREE.InstancedMesh(geo, copperMat, copperSet.size);
@@ -90,21 +94,22 @@ function sampleLogo() {
     const im = new Image();
     im.crossOrigin = "anonymous";
     im.onload = () => {
-      const W = 190;
+      const W = 250;
       const cv = document.createElement("canvas");
       const pawH = Math.round(im.height * 0.80); // top part only — skip the wordmark
       cv.width = W; cv.height = Math.round(W * pawH / im.width);
       const cx = cv.getContext("2d");
       cx.drawImage(im, 0, 0, im.width, pawH, 0, 0, cv.width, cv.height);
       const d = cx.getImageData(0, 0, cv.width, cv.height).data;
-      const opaque = (x, y) => d[(y * cv.width + x) * 4 + 3] > 110;
+      // stricter alpha → cleaner, sharper silhouette edge
+      const opaque = (x, y) => d[(y * cv.width + x) * 4 + 3] > 135;
 
       let oc = 0;
       for (let y = 0; y < cv.height; y++) for (let x = 0; x < cv.width; x++) if (opaque(x, y)) oc++;
 
-      // even grid step tuned for ~5000 crisp particles
-      const k = Math.max(1, Math.round(Math.sqrt(oc / 5000)));
-      const scale = 13 / cv.height;            // world height of the mark
+      // fine even grid → ~10000 small cubes → smooth, crisp edges
+      const k = Math.max(1, Math.round(Math.sqrt(oc / 10000)));
+      const scale = 11 / cv.height;            // smaller mark = more air around it
       const cxp = cv.width / 2, cyp = cv.height / 2, maxR = cv.height * 0.55;
       const pts = [];
       for (let y = 0; y < cv.height; y += k)
@@ -115,10 +120,10 @@ function sampleLogo() {
             pts.push({
               x: dx * scale,
               y: -dy * scale,
-              z: 0.6 * Math.max(0, 1 - dist * dist) + (((x * 7 + y * 13) % 10) / 10 - 0.5) * 0.12
+              z: 0.5 * Math.max(0, 1 - dist * dist) + (((x * 7 + y * 13) % 10) / 10 - 0.5) * 0.08
             });
           }
-      resolve({ pts, cube: k * scale * 0.82 });
+      resolve({ pts, cube: k * scale * 0.9 }); // cubes nearly fill the grid → solid, crisp
     };
     im.onerror = () => resolve(null);
     im.src = "assets/logo_h230.webp";
@@ -182,7 +187,9 @@ const resize = () => {
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   paw.position.x = w < 900 ? 0 : 7;
-  camera.lookAt(w < 900 ? 0 : 2.4, 0, 0);
+  // narrow viewports frame a tall slice — shrink the mark so it keeps its air
+  paw.scale.setScalar(w < 700 ? 0.66 : w < 900 ? 0.8 : 1);
+  camera.lookAt(w < 900 ? 0 : 2.2, 0, 0);
   camera.updateProjectionMatrix();
   if (prefersReduced && ready) renderer.render(scene, camera);
 };
@@ -256,4 +263,5 @@ if (prefersReduced) {
   const waitReady = () => { if (ready) { loop(); visible = false; } else setTimeout(waitReady, 60); };
   waitReady();
 }
+
 
