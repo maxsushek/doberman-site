@@ -247,6 +247,7 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 .menu__img {
   position: absolute; right: 0; top: 0; bottom: 0; width: 44%;
   opacity: 0; pointer-events: none;
+  isolation: isolate; /* contain the scrim z-index so it can't cover the contacts */
   transition: opacity 1s var(--ease-out);
 }
 .menu.is-open .menu__img { opacity: 1; transition-delay: .35s; }
@@ -437,7 +438,9 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 .manifesto__sign.is-visible { opacity: 1; transform: none; }
 
 /* ══════════════ PROCESS ══════════════ */
-.process { position: relative; height: 480vh; background: var(--ink-2); }
+/* one seamless void across all scroll sections — no colour boundaries to
+   read as lines; separation comes from content, not background swaps */
+.process { position: relative; height: 480vh; background: var(--ink); }
 .process__pin {
   position: sticky; top: 0; height: 100svh;
   display: grid; grid-template-columns: 1.15fr 1fr;
@@ -454,7 +457,7 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 .process__img.is-active { opacity: 1; transform: scale(1); }
 .process__media::after {
   content: ""; position: absolute; inset: 0; z-index: 3; /* above all image buffers */
-  background: linear-gradient(90deg, transparent 55%, var(--ink-2) 100%);
+  background: linear-gradient(90deg, transparent 55%, var(--ink) 100%);
 }
 .process__side {
   display: flex; flex-direction: column; justify-content: center;
@@ -582,7 +585,7 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 /* ══════════════ DIGITAL / 3D ══════════════ */
 .digital {
   position: relative; min-height: 160vh;
-  background: var(--ink-2);
+  background: var(--ink);
   overflow: clip;
 }
 /* faint warm key light behind the tower — felt, not seen */
@@ -618,8 +621,7 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 /* ══════════════ VALUES ══════════════ */
 .values {
   padding: clamp(6rem, 16vh, 12rem) var(--pad);
-  /* barely-there top light, like a room lit from a high window */
-  background: linear-gradient(180deg, #101012 0%, var(--ink) 34%);
+  background: var(--ink);
 }
 .values__list { border-top: 1px solid var(--line); }
 .values__item {
@@ -664,7 +666,7 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 .quote__text span { display: inline-block; overflow: hidden; padding-bottom: .1em; }
 
 /* ══════════════ CONTACT / FOOTER ══════════════ */
-.contact { background: var(--ink-2); overflow: hidden; }
+.contact { background: var(--ink); overflow: hidden; }
 .contact__marquee {
   border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
   padding: 1.1rem 0; overflow: hidden; white-space: nowrap;
