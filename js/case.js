@@ -239,21 +239,48 @@
     });
   });
 
-  /* ── Film block: reveal the real YouTube chronicle on click ── */
+  /* ── Object reel: horizontal scroll like the homepage rail ── */
+  const mm = gsap.matchMedia();
+  mm.add("(min-width: 901px) and (prefers-reduced-motion: no-preference)", () => {
+    const track = document.getElementById("reelTrack");
+    const pin = document.getElementById("reelPin");
+    if (!track || !pin) return;
+    const getDist = () => track.scrollWidth - window.innerWidth;
+    gsap.to(track, {
+      x: () => -getDist(), ease: "none",
+      scrollTrigger: {
+        trigger: pin, start: "top 14%", end: () => "+=" + getDist() * 1.15,
+        pin: true, scrub: 0.7, invalidateOnRefresh: true, anticipatePin: 1
+      }
+    });
+  });
+
+  /* ── Film: the chronicle auto-plays muted inline once in view ── */
   const frame = document.getElementById("filmFrame");
   if (frame && frame.dataset.yt) {
-    frame.addEventListener("click", () => {
-      if (frame.classList.contains("is-playing")) return;
-      frame.classList.add("is-playing");
-      const yt = frame.dataset.yt;
-      const iframe = document.createElement("iframe");
-      iframe.className = "filmblock__iframe";
-      iframe.src = `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1`;
-      iframe.title = "Хроніка реставрації — Руська Лозова";
-      iframe.allow = "autoplay; encrypted-media; fullscreen; picture-in-picture";
-      iframe.allowFullscreen = true;
-      frame.appendChild(iframe);
-    });
+    const yt = frame.dataset.yt;
+    if (prefersReduced) {
+      // no autoplay — offer a play link over the poster
+      frame.style.cursor = "pointer";
+      frame.addEventListener("click", () => window.open(`https://www.youtube.com/watch?v=${yt}`, "_blank"));
+    } else {
+      let loaded = false;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && !loaded) {
+            loaded = true;
+            const iframe = document.createElement("iframe");
+            iframe.className = "filmblock__iframe";
+            iframe.src = `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&mute=1&loop=1&playlist=${yt}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1`;
+            iframe.title = "Хроніка реставрації — Руська Лозова";
+            iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+            frame.appendChild(iframe);
+            frame.classList.add("is-playing");
+          }
+        });
+      }, { threshold: 0.4 });
+      io.observe(frame);
+    }
   }
 
   /* ── Anchors ───────────────────────────────── */
