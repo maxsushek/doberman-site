@@ -242,14 +242,24 @@
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   });
 
+  // right panel: permanent image, cinematic crossfade between two buffers
+  const imgLayers = menuImg.querySelectorAll(".menu__img-layer");
+  let imgFront = 0;
+  let imgUrl = "";
+  const setMenuImage = (url) => {
+    if (!url || url === imgUrl || imgLayers.length < 2) return;
+    imgUrl = url;
+    const next = 1 - imgFront;
+    imgLayers[next].style.backgroundImage = `url('${url}')`;
+    imgLayers[next].classList.add("is-front");
+    imgLayers[imgFront].classList.remove("is-front");
+    imgFront = next;
+  };
+  setMenuImage(menu.querySelector(".menu__link")?.dataset.img);
+
   menu.querySelectorAll(".menu__link").forEach((link) => {
-    link.addEventListener("mouseenter", () => {
-      if (link.dataset.img) {
-        menuImg.style.backgroundImage = `url('${link.dataset.img}')`;
-        menuImg.classList.add("is-visible");
-      }
-    });
-    link.addEventListener("mouseleave", () => menuImg.classList.remove("is-visible"));
+    link.addEventListener("mouseenter", () => setMenuImage(link.dataset.img));
+    link.addEventListener("focus", () => setMenuImage(link.dataset.img));
     link.addEventListener("click", (e) => {
       e.preventDefault();
       pendingScroll = link.getAttribute("href");
@@ -304,14 +314,26 @@
   const processImgs = document.querySelectorAll(".process__img");
   const processBar = document.getElementById("processBar");
   if (processSteps.length && !prefersReduced) {
-    const processST = ScrollTrigger.create({
+    // hysteresis: a step flips only 6% past the boundary, so tiny scroll
+    // jitters at the edge never make the text flicker back and forth
+    let curStep = 0;
+    ScrollTrigger.create({
       trigger: ".process",
       start: "top top",
       end: "bottom bottom",
       onUpdate: (self) => {
-        const idx = Math.min(processSteps.length - 1, Math.floor(self.progress * processSteps.length));
-        processSteps.forEach((s, i) => s.classList.toggle("is-active", i === idx));
-        processImgs.forEach((im, i) => im.classList.toggle("is-active", i === idx));
+        const pos = self.progress * processSteps.length;
+        let target = curStep;
+        while (target < processSteps.length - 1 && pos >= target + 1.06) target++;
+        while (target > 0 && pos <= target - 0.06) target--;
+        if (target !== curStep) {
+          processSteps.forEach((s, i) => {
+            s.classList.toggle("is-leaving", i === curStep);
+            s.classList.toggle("is-active", i === target);
+          });
+          processImgs.forEach((im, i) => im.classList.toggle("is-active", i === target));
+          curStep = target;
+        }
         processBar.style.width = (self.progress * 100) + "%";
       }
     });
