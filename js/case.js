@@ -185,18 +185,34 @@
   /* ── Process film: pinned crossfade sequence ─── */
   const pfPin = document.getElementById("pfPin");
   if (pfPin && !prefersReduced) {
-    const imgs = pfPin.querySelectorAll(".pf__img");
-    const caps = pfPin.querySelectorAll(".pf__cap");
+    const imgs = Array.from(pfPin.querySelectorAll(".pf__img"));
+    const caps = Array.from(pfPin.querySelectorAll(".pf__cap"));
     const bar  = document.getElementById("pfBar");
     const n = imgs.length;
+    let cur = 0;
+    // switch: raise incoming over a SOLID outgoing so media never dips semi-transparent (matches homepage)
+    const activate = (idx) => {
+      imgs.forEach((im, i) => { im.style.zIndex = i === idx ? "2" : (i === cur ? "1" : "0"); });
+      imgs.forEach((im, i) => im.classList.toggle("is-active", i === idx));
+      caps.forEach((c, i)  => c.classList.toggle("is-active", i === idx));
+      cur = idx;
+    };
     ScrollTrigger.create({
       trigger: ".process-film", start: "top top", end: "bottom bottom", scrub: true,
       onUpdate: (self) => {
-        const idx = Math.min(n - 1, Math.floor(self.progress * n));
-        imgs.forEach((im, i) => im.classList.toggle("is-active", i === idx));
-        caps.forEach((c, i)  => c.classList.toggle("is-active", i === idx));
+        // hysteresis: only flip a stage 6% past the boundary — kills Lenis jitter flicker
+        const pos = self.progress * n;
+        let target = cur;
+        while (target < n - 1 && pos >= target + 1.06) target++;
+        while (target > 0 && pos <= target - 0.06) target--;
+        if (target !== cur) activate(target);
         if (bar) bar.style.width = (self.progress * 100).toFixed(1) + "%";
       }
+    });
+    // slow scrubbed drift so the 360vh pin feels alive, not static-then-snap (.pf__media has overscan)
+    gsap.fromTo(".pf__media", { yPercent: -3 }, {
+      yPercent: 3, ease: "none",
+      scrollTrigger: { trigger: ".process-film", start: "top top", end: "bottom bottom", scrub: true }
     });
   }
 
@@ -206,7 +222,8 @@
     const cards = worksList.querySelectorAll("li");
     if (!prefersReduced) {
       gsap.from(cards, {
-        y: 34, opacity: 0, duration: .9, ease: "expo.out", stagger: 0.06,
+        y: 24, opacity: 0, duration: .9, ease: "expo.out",
+        stagger: { each: 0.04, from: "start", grid: "auto" },
         scrollTrigger: { trigger: worksList, start: "top 78%" }
       });
     } else {
@@ -225,6 +242,20 @@
     } else {
       resultCards.forEach((c) => { c.style.opacity = 1; });
     }
+  }
+
+  /* ── Task limits + spec rows: sequenced list builds ── */
+  if (!prefersReduced) {
+    const limits = document.querySelectorAll(".chapter__limits li");
+    if (limits.length) gsap.from(limits, {
+      y: 28, opacity: 0, duration: .9, ease: "expo.out", stagger: 0.08,
+      scrollTrigger: { trigger: ".chapter__limits", start: "top 85%" }
+    });
+    const specRows = document.querySelectorAll(".spec__row");
+    if (specRows.length) gsap.from(specRows, {
+      y: 18, opacity: 0, duration: .7, ease: "expo.out", stagger: 0.05,
+      scrollTrigger: { trigger: ".spec__list", start: "top 82%" }
+    });
   }
 
   /* ── Gallery clip-path reveal ──────────────── */
@@ -251,7 +282,8 @@
   /* ── Result: count-up ──────────────────────── */
   document.querySelectorAll(".num__val").forEach((el) => {
     const stat = el.dataset.static;
-    if (stat != null) { el.textContent = stat; if (!prefersReduced) gsap.from(el, { opacity: 0, y: 26, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 85%" } }); return; }
+    // the card carries the reveal (stagger above); the digit only ticks up — no double animation
+    if (stat != null) { el.textContent = stat; return; }
     const target = parseFloat(el.dataset.target || "0");
     const suffix = el.dataset.suffix || "";
     if (prefersReduced) { el.textContent = target + suffix; return; }
@@ -259,7 +291,6 @@
     ScrollTrigger.create({
       trigger: el, start: "top 85%", once: true,
       onEnter: () => {
-        gsap.fromTo(el, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: 1, ease: "expo.out" });
         gsap.to(obj, { v: target, duration: 1.8, ease: "power2.out", onUpdate: () => { el.textContent = Math.round(obj.v) + suffix; } });
       }
     });
