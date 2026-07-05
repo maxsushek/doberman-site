@@ -7,9 +7,111 @@
   const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const finePointer = window.matchMedia("(pointer: fine)").matches;
 
+  /* ── Lenis handle (instance created after the GSAP guard — the blocks
+     between here and the guard are GSAP-free and must survive a CDN failure) ── */
+  let lenis = null;
+  const scrollTo = (target) => {
+    if (lenis) lenis.scrollTo(target, { offset: 0, duration: 1.4, force: true });
+    else document.querySelector(target)?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth" });
+  };
+
+  /* ── Menu overlay (CSS-driven, shared pattern) ─ */
+  const menu = document.getElementById("menuOverlay");
+  const menuBtn = document.getElementById("menuBtn");
+  const menuBtnLabel = menuBtn.querySelector(".menu-btn__label");
+  const menuImg = document.getElementById("menuImg");
+  const mainEl = document.getElementById("main");
+  const headerLogo = document.querySelector(".header__logo");
+  const menuBg = menu.querySelector(".menu__bg");
+  let menuOpen = false, pendingNav = null, closeTimer = null;
+
+  const finishClose = () => { if (menuOpen) return; lenis?.start(); if (pendingNav) { location.href = pendingNav; } };
+  menuBg.addEventListener("transitionend", (e) => { if (e.propertyName === "transform" && !menuOpen) { clearTimeout(closeTimer); finishClose(); } });
+
+  const toggleMenu = (force) => {
+    const next = typeof force === "boolean" ? force : !menuOpen;
+    if (next === menuOpen) return;
+    menuOpen = next;
+    document.body.classList.toggle("menu-open", menuOpen);
+    menu.classList.toggle("is-open", menuOpen);
+    menu.setAttribute("aria-hidden", String(!menuOpen));
+    menuBtn.setAttribute("aria-expanded", String(menuOpen));
+    menuBtnLabel.textContent = menuOpen ? menuBtnLabel.dataset.close : menuBtnLabel.dataset.open;
+    if (menuOpen) {
+      pendingNav = null; clearTimeout(closeTimer); lenis?.stop();
+      mainEl?.setAttribute("inert", ""); headerLogo?.setAttribute("inert", "");
+      menu.querySelector(".menu__link")?.focus({ preventScroll: true });
+    } else {
+      mainEl?.removeAttribute("inert"); headerLogo?.removeAttribute("inert");
+      menuBtn.focus({ preventScroll: true });
+      clearTimeout(closeTimer); closeTimer = setTimeout(finishClose, 1200);
+    }
+  };
+  menuBtn.addEventListener("click", () => toggleMenu());
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && menuOpen) toggleMenu(false); });
+  addEventListener("keydown", (e) => {
+    if (!menuOpen || e.key !== "Tab") return;
+    const f = [menuBtn, ...menu.querySelectorAll("a[href]")]; const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
+  // menu right-panel crossfade (same two-buffer pattern as home)
+  const imgLayers = menuImg.querySelectorAll(".menu__img-layer");
+  let imgFront = 0, imgUrl = "";
+  const setMenuImage = (url) => {
+    if (!url || url === imgUrl || imgLayers.length < 2) return;
+    imgUrl = url; const next = 1 - imgFront, inc = imgLayers[next], out = imgLayers[imgFront];
+    inc.style.transition = "none"; inc.classList.remove("is-front");
+    inc.style.backgroundImage = `url('${url}')`; inc.style.zIndex = "2"; out.style.zIndex = "1";
+    void inc.offsetWidth; inc.style.transition = ""; inc.classList.add("is-front"); imgFront = next;
+  };
+  setMenuImage(menu.querySelector(".menu__link")?.dataset.img);
+  menu.querySelectorAll(".menu__link").forEach((link) => {
+    link.addEventListener("mouseenter", () => setMenuImage(link.dataset.img));
+    link.addEventListener("focus", () => setMenuImage(link.dataset.img));
+    // internal (index.html#..) — close menu, then navigate
+    link.addEventListener("click", (e) => { e.preventDefault(); pendingNav = link.getAttribute("href"); toggleMenu(false); });
+  });
+
+  /* ── Film: the chronicle auto-plays muted inline once in view ── */
+  const frame = document.getElementById("filmFrame");
+  if (frame && frame.dataset.yt) {
+    const yt = frame.dataset.yt;
+    if (prefersReduced) {
+      // no autoplay — offer a play link over the poster
+      frame.style.cursor = "pointer";
+      frame.addEventListener("click", () => window.open(`https://www.youtube.com/watch?v=${yt}`, "_blank"));
+    } else {
+      let loaded = false;
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && !loaded) {
+            loaded = true;
+            const iframe = document.createElement("iframe");
+            iframe.className = "filmblock__iframe";
+            iframe.src = `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&mute=1&loop=1&playlist=${yt}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1`;
+            iframe.title = "Хроніка реставрації — Руська Лозова";
+            iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+            frame.appendChild(iframe);
+            frame.classList.add("is-playing");
+          }
+        });
+      }, { threshold: 0.4 });
+      io.observe(frame);
+    }
+  }
+
+  /* ── Anchors ───────────────────────────────── */
+  document.querySelector(".chero__scroll")?.addEventListener("click", (e) => { e.preventDefault(); scrollTo("#context"); });
+  document.getElementById("toTop")?.addEventListener("click", (e) => { e.preventDefault(); scrollTo("#hero"); });
+
+  /* ── GSAP guard: below this line everything animates ── */
   if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
     document.querySelectorAll("[data-reveal]").forEach((el) => { el.style.opacity = "1"; el.style.transform = "none"; });
     document.getElementById("curtain")?.remove();
+    // static states for everything the animations would have revealed (see .no-gsap rules in case.css)
+    document.documentElement.classList.add("no-gsap");
     return;
   }
   gsap.registerPlugin(ScrollTrigger);
@@ -17,17 +119,12 @@
   if (prefersReduced) document.documentElement.classList.add("reduced-motion");
 
   /* ── Lenis ─────────────────────────────────── */
-  let lenis = null;
   if (!prefersReduced && typeof Lenis !== "undefined") {
     lenis = new Lenis({ duration: 1.2, smoothWheel: true, wheelMultiplier: 0.85 });
     lenis.on("scroll", ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
     gsap.ticker.lagSmoothing(0);
   }
-  const scrollTo = (target) => {
-    if (lenis) lenis.scrollTo(target, { offset: 0, duration: 1.4, force: true });
-    else document.querySelector(target)?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth" });
-  };
 
   /* ── Split text ────────────────────────────── */
   document.querySelectorAll("[data-split]").forEach((el) => {
@@ -98,72 +195,13 @@
     });
   }
 
-  /* ── Menu overlay (CSS-driven, shared pattern) ─ */
-  const menu = document.getElementById("menuOverlay");
-  const menuBtn = document.getElementById("menuBtn");
-  const menuBtnLabel = menuBtn.querySelector(".menu-btn__label");
-  const menuImg = document.getElementById("menuImg");
-  const mainEl = document.getElementById("main");
-  const headerLogo = document.querySelector(".header__logo");
-  const menuBg = menu.querySelector(".menu__bg");
-  let menuOpen = false, pendingNav = null, closeTimer = null;
-
-  const finishClose = () => { if (menuOpen) return; lenis?.start(); if (pendingNav) { location.href = pendingNav; } };
-  menuBg.addEventListener("transitionend", (e) => { if (e.propertyName === "transform" && !menuOpen) { clearTimeout(closeTimer); finishClose(); } });
-
-  const toggleMenu = (force) => {
-    const next = typeof force === "boolean" ? force : !menuOpen;
-    if (next === menuOpen) return;
-    menuOpen = next;
-    document.body.classList.toggle("menu-open", menuOpen);
-    menu.classList.toggle("is-open", menuOpen);
-    menu.setAttribute("aria-hidden", String(!menuOpen));
-    menuBtn.setAttribute("aria-expanded", String(menuOpen));
-    menuBtnLabel.textContent = menuOpen ? menuBtnLabel.dataset.close : menuBtnLabel.dataset.open;
-    if (menuOpen) {
-      pendingNav = null; clearTimeout(closeTimer); lenis?.stop();
-      mainEl?.setAttribute("inert", ""); headerLogo?.setAttribute("inert", "");
-      menu.querySelector(".menu__link")?.focus({ preventScroll: true });
-    } else {
-      mainEl?.removeAttribute("inert"); headerLogo?.removeAttribute("inert");
-      menuBtn.focus({ preventScroll: true });
-      clearTimeout(closeTimer); closeTimer = setTimeout(finishClose, 1200);
-    }
-  };
-  menuBtn.addEventListener("click", () => toggleMenu());
-  addEventListener("keydown", (e) => { if (e.key === "Escape" && menuOpen) toggleMenu(false); });
-  addEventListener("keydown", (e) => {
-    if (!menuOpen || e.key !== "Tab") return;
-    const f = [menuBtn, ...menu.querySelectorAll("a[href]")]; const first = f[0], last = f[f.length - 1];
-    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-  });
-
-  // menu right-panel crossfade (same two-buffer pattern as home)
-  const imgLayers = menuImg.querySelectorAll(".menu__img-layer");
-  let imgFront = 0, imgUrl = "";
-  const setMenuImage = (url) => {
-    if (!url || url === imgUrl || imgLayers.length < 2) return;
-    imgUrl = url; const next = 1 - imgFront, inc = imgLayers[next], out = imgLayers[imgFront];
-    inc.style.transition = "none"; inc.classList.remove("is-front");
-    inc.style.backgroundImage = `url('${url}')`; inc.style.zIndex = "2"; out.style.zIndex = "1";
-    void inc.offsetWidth; inc.style.transition = ""; inc.classList.add("is-front"); imgFront = next;
-  };
-  setMenuImage(menu.querySelector(".menu__link")?.dataset.img);
-  menu.querySelectorAll(".menu__link").forEach((link) => {
-    link.addEventListener("mouseenter", () => setMenuImage(link.dataset.img));
-    link.addEventListener("focus", () => setMenuImage(link.dataset.img));
-    // internal (index.html#..) — close menu, then navigate
-    link.addEventListener("click", (e) => { e.preventDefault(); pendingNav = link.getAttribute("href"); toggleMenu(false); });
-  });
-
   /* ── Reveals ───────────────────────────────── */
   if (!prefersReduced) {
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       gsap.to(el, { opacity: 1, y: 0, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
-    // lead / quote / cta char rise
-    document.querySelectorAll(".chapter__lead, .cquote__text, .case-cta__title .hero__line").forEach((el) => {
+    // lead / quote / cta / ledger / epilogue char rise
+    document.querySelectorAll(".chapter__lead, .cquote__text, .case-cta__title .hero__line, .ledger__title, .epilogue__statement").forEach((el) => {
       const chars = el.querySelectorAll(".char"); if (!chars.length) return;
       gsap.fromTo(chars, { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: 0.015, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
@@ -171,90 +209,113 @@
     document.querySelectorAll("[data-reveal]").forEach((el) => { el.style.opacity = "1"; el.style.transform = "none"; });
   }
 
-  /* ── Solution diagram draw ─────────────────── */
+  /* ── Task limits / epilogue facts: sequenced list builds (per-list trigger) ── */
   if (!prefersReduced) {
-    ScrollTrigger.create({
-      trigger: ".solution__diagram", start: "top 75%", once: true,
-      onEnter: () => {
-        gsap.to(".dgm-line path", { strokeDashoffset: 0, duration: 1.4, stagger: 0.12, ease: "power2.out" });
-        gsap.to(".dgm-node, .dgm-house, .dgm-label text", { opacity: 1, duration: 0.8, stagger: 0.05, ease: "power2.out", delay: 0.5 });
-      }
+    document.querySelectorAll(".chapter__limits").forEach((list) => {
+      const items = list.querySelectorAll("li");
+      if (items.length) gsap.from(items, {
+        y: 28, opacity: 0, duration: .9, ease: "expo.out", stagger: 0.08,
+        scrollTrigger: { trigger: list, start: "top 85%" }
+      });
     });
   }
 
-  /* ── Process film: pinned crossfade sequence ─── */
-  const pfPin = document.getElementById("pfPin");
-  if (pfPin && !prefersReduced) {
-    const imgs = Array.from(pfPin.querySelectorAll(".pf__img"));
-    const caps = Array.from(pfPin.querySelectorAll(".pf__cap"));
-    const bar  = document.getElementById("pfBar");
-    const n = imgs.length;
-    let cur = 0;
-    // switch: raise incoming over a SOLID outgoing so media never dips semi-transparent (matches homepage)
-    const activate = (idx) => {
-      imgs.forEach((im, i) => { im.style.zIndex = i === idx ? "2" : (i === cur ? "1" : "0"); });
-      imgs.forEach((im, i) => im.classList.toggle("is-active", i === idx));
-      caps.forEach((c, i)  => c.classList.toggle("is-active", i === idx));
-      cur = idx;
+  /* ── 03 Ledger: rules draw, sub-items build, sticky ordinal ticks ── */
+  const ledgerItems = gsap.utils.toArray(".ledger__item");
+  if (ledgerItems.length && !prefersReduced) {
+    const ordNums = gsap.utils.toArray(".ledger__ord-num");
+    let ordCur = 0;
+    gsap.set(ordNums, { opacity: (i) => (i === 0 ? 1 : 0), yPercent: (i) => (i === 0 ? 0 : 28) });
+    // masked rise between ordinals — same vocabulary as the char animations
+    const setOrd = (idx) => {
+      if (idx === ordCur || !ordNums[idx]) return;
+      gsap.to(ordNums[ordCur], { yPercent: -28, opacity: 0, duration: .5, ease: "power3.out", overwrite: "auto" });
+      gsap.fromTo(ordNums[idx], { yPercent: 28, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .75, ease: "expo.out", overwrite: "auto" });
+      ordCur = idx;
     };
-    ScrollTrigger.create({
-      trigger: ".process-film", start: "top top", end: "bottom bottom", scrub: true,
-      onUpdate: (self) => {
-        // hysteresis: only flip a stage 6% past the boundary — kills Lenis jitter flicker
-        const pos = self.progress * n;
-        let target = cur;
-        while (target < n - 1 && pos >= target + 1.06) target++;
-        while (target > 0 && pos <= target - 0.06) target--;
-        if (target !== cur) activate(target);
-        if (bar) bar.style.width = (self.progress * 100).toFixed(1) + "%";
-      }
-    });
-    // slow scrubbed drift so the 360vh pin feels alive, not static-then-snap (.pf__media has overscan)
-    gsap.fromTo(".pf__media", { yPercent: -3 }, {
-      yPercent: 3, ease: "none",
-      scrollTrigger: { trigger: ".process-film", start: "top top", end: "bottom bottom", scrub: true }
+    ledgerItems.forEach((item, i) => {
+      const rule = item.querySelector(".ledger__rule");
+      if (rule) gsap.fromTo(rule, { scaleX: 0 }, {
+        scaleX: 1, duration: 1.1, ease: "expo.out",
+        scrollTrigger: { trigger: item, start: "top 82%", once: true }
+      });
+      const subs = item.querySelectorAll(".ledger__sub li");
+      if (subs.length) gsap.from(subs, {
+        y: 14, opacity: 0, duration: .7, ease: "expo.out", stagger: .07,
+        scrollTrigger: { trigger: item, start: "top 74%", once: true }
+      });
+      ScrollTrigger.create({
+        trigger: item, start: "top 55%", end: "bottom 55%",
+        onToggle: (self) => { if (self.isActive) setOrd(i); }
+      });
     });
   }
 
-  /* ── Works: cards cascade in ───────────────── */
-  const worksList = document.getElementById("worksList");
-  if (worksList) {
-    const cards = worksList.querySelectorAll("li");
-    if (!prefersReduced) {
-      gsap.from(cards, {
-        y: 24, opacity: 0, duration: .9, ease: "expo.out",
-        stagger: { each: 0.04, from: "start", grid: "auto" },
-        scrollTrigger: { trigger: worksList, start: "top 78%" }
+  /* ── 04 Method: the copper thread becomes the deadline met ── */
+  const methodFlow = document.querySelector(".method__flow");
+  if (methodFlow && !prefersReduced) {
+    // signature: 1px thread scrubs down the axis, lighting each stage as it passes
+    gsap.fromTo("#methodThread", { scaleY: 0 }, {
+      scaleY: 1, ease: "none",
+      scrollTrigger: { trigger: methodFlow, start: "top 62%", end: "bottom 55%", scrub: 0.6 }
+    });
+    gsap.utils.toArray(".method__step:not(.method__step--total)").forEach((step) => {
+      // bidirectional ignition — scrolling back un-lights, the line always tells the truth
+      ScrollTrigger.create({
+        trigger: step, start: "top 60%", end: "bottom 40%",
+        toggleClass: { targets: step, className: "is-lit" }
       });
-    } else {
-      cards.forEach((c) => { c.style.opacity = 1; });
+      const chips = step.querySelectorAll(".method__chips li");
+      if (chips.length) gsap.from(chips, {
+        y: 12, autoAlpha: 0, duration: .6, ease: "expo.out", stagger: .06,
+        scrollTrigger: { trigger: step, start: "top 80%", once: true }
+      });
+    });
+    const total = document.querySelector(".method__total");
+    if (total) {
+      // block rises, digits tick via the shared count-up — no double animation
+      gsap.from(total, {
+        y: 44, opacity: 0, duration: 1.2, ease: "expo.out",
+        scrollTrigger: { trigger: total, start: "top 82%", once: true }
+      });
+      gsap.fromTo(".method__total-line", { scaleX: 0 }, {
+        scaleX: 1, duration: 1.2, ease: "expo.out", delay: .5,
+        scrollTrigger: { trigger: total, start: "top 82%", once: true }
+      });
     }
   }
 
-  /* ── Result: number cards cascade in ───────── */
-  const resultCards = document.querySelectorAll(".result__list .num");
-  if (resultCards.length) {
-    if (!prefersReduced) {
-      gsap.from(resultCards, {
-        y: 40, opacity: 0, duration: 1.0, ease: "expo.out", stagger: 0.1,
-        scrollTrigger: { trigger: ".result__list", start: "top 80%" }
-      });
-    } else {
-      resultCards.forEach((c) => { c.style.opacity = 1; });
-    }
-  }
-
-  /* ── Task limits + spec rows: sequenced list builds ── */
-  if (!prefersReduced) {
-    const limits = document.querySelectorAll(".chapter__limits li");
-    if (limits.length) gsap.from(limits, {
-      y: 28, opacity: 0, duration: .9, ease: "expo.out", stagger: 0.08,
-      scrollTrigger: { trigger: ".chapter__limits", start: "top 85%" }
+  /* ── 05 Epilogue: quiet develop, plate parallax, index build ── */
+  const plate = document.querySelector(".epilogue__plate");
+  if (plate && !prefersReduced) {
+    // the entrance group emerges into light where the copy says keys were handed over
+    gsap.fromTo(".epilogue__veil", { opacity: .55 }, {
+      opacity: .12, ease: "none",
+      scrollTrigger: { trigger: plate, start: "top 85%", end: "bottom 45%", scrub: 0.5 }
     });
-    const specRows = document.querySelectorAll(".spec__row");
-    if (specRows.length) gsap.from(specRows, {
-      y: 18, opacity: 0, duration: .7, ease: "expo.out", stagger: 0.05,
-      scrollTrigger: { trigger: ".spec__list", start: "top 82%" }
+    gsap.fromTo(plate.querySelector("img"), { yPercent: -4 }, {
+      yPercent: 4, ease: "none",
+      scrollTrigger: { trigger: plate, start: "top bottom", end: "bottom top", scrub: true }
+    });
+  }
+  const epIndex = document.querySelector(".epilogue__index");
+  if (epIndex && !prefersReduced) {
+    const rows = epIndex.querySelectorAll(".epilogue__row");
+    gsap.from(rows, {
+      y: 26, opacity: 0, duration: .9, ease: "expo.out", stagger: .09,
+      scrollTrigger: { trigger: epIndex, start: "top 80%", once: true }
+    });
+    rows.forEach((row) => {
+      const rule = row.querySelector(".epilogue__rule");
+      if (rule) gsap.fromTo(rule, { scaleX: 0 }, {
+        scaleX: 1, duration: 1, ease: "expo.out",
+        scrollTrigger: { trigger: row, start: "top 84%", once: true }
+      });
+    });
+    const badges = document.querySelectorAll(".epilogue__badges li");
+    if (badges.length) gsap.from(badges, {
+      y: 10, opacity: 0, duration: .6, ease: "expo.out", stagger: .05,
+      scrollTrigger: { trigger: ".epilogue__badges", start: "top 90%", once: true }
     });
   }
 
@@ -270,16 +331,7 @@
     document.querySelectorAll("[data-reveal-img] img").forEach((im) => { im.style.clipPath = "none"; im.style.transform = "none"; });
   }
 
-  /* ── Result: object drifts behind the numbers ── */
-  if (!prefersReduced) {
-    const rbg = document.querySelector(".result__bg");
-    if (rbg) gsap.fromTo(rbg, { yPercent: -6, scale: 1.04 }, {
-      yPercent: 6, ease: "none",
-      scrollTrigger: { trigger: ".result", start: "top bottom", end: "bottom top", scrub: true }
-    });
-  }
-
-  /* ── Result: count-up ──────────────────────── */
+  /* ── Count-up (method total + epilogue index) ── */
   document.querySelectorAll(".num__val").forEach((el) => {
     const stat = el.dataset.static;
     // the card carries the reveal (stagger above); the digit only ticks up — no double animation
@@ -311,38 +363,6 @@
       }
     });
   });
-
-  /* ── Film: the chronicle auto-plays muted inline once in view ── */
-  const frame = document.getElementById("filmFrame");
-  if (frame && frame.dataset.yt) {
-    const yt = frame.dataset.yt;
-    if (prefersReduced) {
-      // no autoplay — offer a play link over the poster
-      frame.style.cursor = "pointer";
-      frame.addEventListener("click", () => window.open(`https://www.youtube.com/watch?v=${yt}`, "_blank"));
-    } else {
-      let loaded = false;
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting && !loaded) {
-            loaded = true;
-            const iframe = document.createElement("iframe");
-            iframe.className = "filmblock__iframe";
-            iframe.src = `https://www.youtube-nocookie.com/embed/${yt}?autoplay=1&mute=1&loop=1&playlist=${yt}&controls=0&modestbranding=1&playsinline=1&rel=0&disablekb=1`;
-            iframe.title = "Хроніка реставрації — Руська Лозова";
-            iframe.allow = "autoplay; encrypted-media; picture-in-picture";
-            frame.appendChild(iframe);
-            frame.classList.add("is-playing");
-          }
-        });
-      }, { threshold: 0.4 });
-      io.observe(frame);
-    }
-  }
-
-  /* ── Anchors ───────────────────────────────── */
-  document.querySelector(".chero__scroll")?.addEventListener("click", (e) => { e.preventDefault(); scrollTo("#context"); });
-  document.getElementById("toTop")?.addEventListener("click", (e) => { e.preventDefault(); scrollTo("#hero"); });
 
   addEventListener("load", () => ScrollTrigger.refresh());
 })();
