@@ -183,6 +183,7 @@
   const menuImg = document.getElementById("menuImg");
   let menuOpen = false;
   let pendingScroll = null; // section to scroll to once the menu has closed
+  let pendingNav = null;    // another page to navigate to once the menu has closed
   let closeTimer = null;
 
   const mainEl = document.getElementById("main");
@@ -194,6 +195,7 @@
   const finishClose = () => {
     if (menuOpen) return; // reopened mid-close
     lenis?.start();
+    if (pendingNav) { location.href = pendingNav; return; }
     if (pendingScroll) { scrollTo(pendingScroll); pendingScroll = null; }
   };
   menuBg.addEventListener("transitionend", (e) => {
@@ -214,7 +216,7 @@
     menuBtn.setAttribute("aria-expanded", String(menuOpen));
     menuBtnLabel.textContent = menuOpen ? menuBtnLabel.dataset.close : menuBtnLabel.dataset.open;
     if (menuOpen) {
-      pendingScroll = null;
+      pendingScroll = null; pendingNav = null;
       clearTimeout(closeTimer);
       lenis?.stop();
       mainEl?.setAttribute("inert", "");
@@ -271,7 +273,9 @@
     link.addEventListener("focus", () => setMenuImage(link.dataset.img));
     link.addEventListener("click", (e) => {
       e.preventDefault();
-      pendingScroll = link.getAttribute("href");
+      const href = link.getAttribute("href");
+      if (href && href.charAt(0) === "#") pendingScroll = href;  // same-page anchor
+      else pendingNav = href;                                    // another page
       toggleMenu(false);
     });
   });

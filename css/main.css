@@ -312,6 +312,7 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
 .menu.is-open .menu__list li:nth-child(4) .menu__word { transition-delay: .70s, 0s; }
 .menu.is-open .menu__list li:nth-child(5) .menu__word { transition-delay: .80s, 0s; }
 .menu.is-open .menu__list li:nth-child(6) .menu__word { transition-delay: .90s, 0s; }
+.menu.is-open .menu__list li:nth-child(7) .menu__word { transition-delay: 1.0s, 0s; }
 .menu__link:hover .menu__word { color: var(--copper-bright); }
 .menu__aside {
   display: flex; flex-direction: column; gap: 2.4rem;

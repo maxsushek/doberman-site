@@ -272,6 +272,115 @@
   .stats { grid-template-columns: 1fr; }
 }
 
+/* ══════════════ TEAM PAGE (наша команда) ══════════════ */
+.tchero .chero__img { filter: grayscale(45%) brightness(.5); }
+
+.tstory { max-width: 1080px; margin: 0 auto; padding: clamp(6rem, 15vh, 12rem) var(--pad) clamp(3rem, 8vh, 5rem); }
+.tstory .chapter__cap { margin-bottom: clamp(1.6rem, 4vh, 2.4rem); }
+.tstory__lead {
+  font-family: var(--font-display); font-weight: 300;
+  font-size: clamp(2rem, 5.4vw, 4.4rem); line-height: 1.1; letter-spacing: -.01em;
+  max-width: 20ch; text-wrap: balance;
+}
+.tstory__body {
+  max-width: 62ch; margin: clamp(1.7rem, 4vh, 2.6rem) 0;
+  font-size: clamp(1.05rem, 1.5vw, 1.32rem); line-height: 1.72;
+  color: rgba(236,232,225,.88); text-wrap: pretty;
+}
+.tstory__quote {
+  margin: clamp(3rem, 8vh, 6rem) 0; max-width: 20ch;
+  font-family: var(--font-display); font-weight: 300;
+  font-size: clamp(1.8rem, 4.6vw, 3.6rem); line-height: 1.22; letter-spacing: -.01em;
+}
+.tstory__quote em { font-style: normal; color: var(--copper-bright); display: block; }
+.tstory__quote--right { margin-left: auto; text-align: right; }
+.tstory__statement {
+  margin: clamp(3rem, 8vh, 6rem) 0 clamp(1.6rem, 4vh, 2.4rem);
+  font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(2rem, 5.6vw, 4.6rem); line-height: 1.08; letter-spacing: -.01em;
+  text-transform: uppercase; text-wrap: balance;
+}
+.tstory__statement em { font-style: normal; color: var(--copper-bright); }
+.tstory__mission {
+  margin-top: clamp(3rem, 8vh, 5.5rem); padding-top: clamp(2rem, 5vh, 3.4rem);
+  border-top: 1px solid var(--line); max-width: 26ch;
+  font-family: var(--font-display); font-weight: 300;
+  font-size: clamp(1.5rem, 3.2vw, 2.6rem); line-height: 1.34; color: var(--copper-bright);
+}
+/* year timeline */
+.tline {
+  display: flex; flex-wrap: wrap; gap: clamp(1.6rem, 4vw, 3rem);
+  margin: clamp(2.6rem, 6vh, 4rem) 0; padding: clamp(2rem, 5vh, 3.2rem) 0;
+  border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+}
+.tline__item { flex: 1 1 200px; }
+.tline__item b {
+  display: block; font-family: var(--font-display); font-weight: 200;
+  font-size: clamp(2.4rem, 6vw, 4.4rem); line-height: 1; letter-spacing: -.02em;
+  color: var(--bone); font-variant-numeric: tabular-nums;
+}
+.tline__item span {
+  display: block; margin-top: .8rem; max-width: 24ch;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--bone-dim); line-height: 1.5;
+}
+
+/* leadership cards */
+.team { max-width: 1400px; margin: 0 auto; padding: clamp(4rem, 10vh, 8rem) var(--pad) clamp(7rem, 18vh, 14rem); }
+.team__head { margin-bottom: clamp(2.6rem, 6vh, 4rem); }
+.team__title {
+  margin-top: 1.4rem; font-family: var(--font-display); font-weight: 300;
+  font-size: clamp(1.8rem, 4.4vw, 3.4rem); line-height: 1.08; letter-spacing: -.01em;
+}
+.team__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.6rem, 4vw, 3.2rem); max-width: 900px; }
+.team__portrait {
+  position: relative; aspect-ratio: 4 / 5; overflow: hidden;
+  background: radial-gradient(78% 78% at 50% 28%, #1b1712, var(--ink-2) 72%);
+  border: 1px solid var(--line);
+}
+.team__paw {
+  position: absolute; inset: 0; z-index: 1;
+  display: flex; align-items: center; justify-content: center; opacity: .13;
+}
+.team__paw img { width: 44%; filter: grayscale(1) brightness(2); }
+.team__cutout {
+  position: absolute; inset: 0; z-index: 2;
+  width: 100%; height: 100%; object-fit: cover; object-position: center 12%;
+  opacity: 0;   /* revealed only once the real cutout photo has loaded */
+  filter: grayscale(28%) brightness(.96);
+  transition: opacity .8s var(--ease-out), filter .6s var(--ease-out), scale 1.2s var(--ease-out); scale: 1.01;
+}
+.team__portrait.is-loaded .team__cutout { opacity: 1; }
+.team__portrait::after {
+  content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, transparent 60%, rgba(11,11,12,.55));
+}
+@media (hover: hover) and (pointer: fine) {
+  .team__card:hover .team__cutout { filter: grayscale(0%) brightness(1); scale: 1.04; }
+}
+.team__card figcaption { padding-top: clamp(1rem, 2vw, 1.4rem); }
+.team__role {
+  display: block; font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: .22em; text-transform: uppercase; color: var(--copper); margin-bottom: .5rem;
+}
+.team__name {
+  display: block; font-family: var(--font-display); font-weight: 400;
+  font-size: clamp(1.3rem, 2.4vw, 2rem); text-transform: uppercase; letter-spacing: .01em;
+}
+
+/* masked char rise on the team display type (case.js drives it) */
+.tstory__lead .word, .tstory__statement .word, .tstory__quote .word, .team__title .word {
+  display: inline-block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em;
+}
+.tstory__lead .char, .tstory__statement .char, .tstory__quote .char, .team__title .char {
+  display: inline-block; will-change: transform;
+}
+
+@media (max-width: 720px) {
+  .team__grid { grid-template-columns: 1fr; max-width: 420px; }
+  .tstory__quote--right { text-align: left; margin-left: 0; }
+}
+
 /* ══════════════ MOTION PRIMITIVES ══════════════ */
 [data-reveal] { opacity: 0; transform: translateY(30px); }
 .chero__title .char, .case-cta__title .char { display: inline-block; will-change: transform; }

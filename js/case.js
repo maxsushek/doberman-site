@@ -200,7 +200,7 @@
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       gsap.to(el, { opacity: 1, y: 0, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
-    document.querySelectorAll(".case-cta__title .hero__line").forEach((el) => {
+    document.querySelectorAll(".case-cta__title .hero__line, .tstory__lead, .tstory__statement, .tstory__quote, .team__title").forEach((el) => {
       const chars = el.querySelectorAll(".char"); if (!chars.length) return;
       gsap.fromTo(chars, { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: 0.015, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
