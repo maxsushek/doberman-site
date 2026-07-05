@@ -217,38 +217,56 @@
     // ── pinned film (desktop) ──
     mmFilm.add("(min-width: 901px)", () => {
       filmSeq.classList.add("is-film");
-      const stage = filmSeq.querySelector(".film-seq__stage");
       const shots = gsap.utils.toArray(".film-seq .shot");
-      const [, s2, s3, s4] = shots;   // 01 intro (base) · 02 task · 03 stats · 04 result
+      const [, s2, s3] = shots;   // 01 intro (base) · 02 task · 03 result (цифри + підсумок)
       const idxEl = document.getElementById("filmIdx");
       const barEl = document.getElementById("filmBar");
 
-      // stack the shots off-screen — each enters over the one before (DOM order = paint order)
-      gsap.set(s2, { xPercent: 100 });          // task waits off to the right
-      gsap.set(s3, { autoAlpha: 0, scale: 1.08 }); // stats waits faded out
-      gsap.set(s4, { yPercent: 100 });          // result waits below
+      // dim photo shots stacked off-screen: task waits right, result waits below
+      gsap.set(s2, { xPercent: 100 });
+      gsap.set(s3, { yPercent: 100 });
 
-      const tl = gsap.timeline({
+      // ── per-shot text reveal (played at a designed speed = the WOW; decoupled from scrub) ──
+      const buildText = (shot) => {
+        const t = gsap.timeline({ paused: true, defaults: { ease: "expo.out" } });
+        const chars = shot.querySelectorAll(".shot__title .char");
+        const rest = shot.querySelectorAll(".shot__cap, .shot__lead, .shot__client, .stat");
+        if (chars.length) { gsap.set(chars, { yPercent: 130 }); t.to(chars, { yPercent: 0, duration: 0.9, stagger: 0.026 }, 0); }
+        if (rest.length) { gsap.set(rest, { y: 26, autoAlpha: 0 }); t.to(rest, { y: 0, autoAlpha: 1, duration: 0.8, stagger: 0.07 }, 0.18); }
+        return t;
+      };
+      const textTls = shots.map(buildText);
+
+      // intro text assembles as the film scrolls into view (before the pin engages)
+      ScrollTrigger.create({
+        trigger: filmSeq, start: "top 55%",
+        onEnter: () => textTls[0].play(), onLeaveBack: () => textTls[0].reverse()
+      });
+
+      // progress at which each shot has landed → its text plays; scrolling back reverses it
+      const reveals = [0, 0.42, 0.80];
+      let active = 0;
+      const master = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
           trigger: filmSeq, start: "top top", end: "bottom bottom",
           scrub: 0.8, invalidateOnRefresh: true,
           onUpdate: (self) => {
             if (barEl) barEl.style.width = (self.progress * 100).toFixed(1) + "%";
-            if (idxEl) idxEl.textContent = String(Math.min(4, Math.floor(self.progress * 4) + 1)).padStart(2, "0");
+            let idx = 0; for (let i = 0; i < reveals.length; i++) if (self.progress >= reveals[i]) idx = i;
+            if (idxEl) idxEl.textContent = String(idx + 1).padStart(2, "0");
+            if (idx !== active) {
+              for (let j = 1; j < textTls.length; j++) { if (j <= idx) textTls[j].play(); else textTls[j].reverse(); }
+              active = idx;
+            }
           }
         }
       });
-
-      // each shot animates in as a whole unit (photo + text together) — the cleanest,
-      // most cinematic read, and immune to the .from()/immediateRender scrub gotcha
-      tl.to({}, { duration: 0.9 });                        // hold 01
-      tl.to(s2, { xPercent: 0, duration: 1 });             // 02 slides in from the right
-      tl.to({}, { duration: 0.8 });                        // hold 02
-      tl.to(s3, { autoAlpha: 1, scale: 1, duration: 1 });  // 03 develops in (numbers)
-      tl.to({}, { duration: 0.8 });                        // hold 03
-      tl.to(s4, { yPercent: 0, duration: 1 });             // 04 rises — the payoff
-      tl.to({}, { duration: 0.9 });                        // end hold
+      master.to({}, { duration: 0.9 });              // hold 01
+      master.to(s2, { xPercent: 0, duration: 1 });   // 02 slides in from the right
+      master.to({}, { duration: 0.9 });              // hold 02
+      master.to(s3, { yPercent: 0, duration: 1 });   // 03 rises — the payoff (numbers + summary)
+      master.to({}, { duration: 0.9 });              // end hold
 
       return () => { filmSeq.classList.remove("is-film"); };  // revert on resize to mobile
     });
