@@ -219,17 +219,14 @@
       filmSeq.classList.add("is-film");
       const stage = filmSeq.querySelector(".film-seq__stage");
       const shots = gsap.utils.toArray(".film-seq .shot");
-      const [, s2, s3, s4, s5] = shots;
-      const strip = document.getElementById("worksStrip");
+      const [, s2, s3, s4] = shots;   // 01 intro (base) · 02 task · 03 stats · 04 result
       const idxEl = document.getElementById("filmIdx");
       const barEl = document.getElementById("filmBar");
 
       // stack the shots off-screen — each enters over the one before (DOM order = paint order)
-      gsap.set(s2, { xPercent: 100 });
-      gsap.set(s3, { yPercent: 100 });
-      gsap.set(s4, { autoAlpha: 0, scale: 1.08 });
-      gsap.set(s5, { yPercent: 100 });
-      const panDist = () => Math.max(0, strip.scrollWidth - stage.clientWidth + parseFloat(getComputedStyle(stage).paddingLeft || 0));
+      gsap.set(s2, { xPercent: 100 });          // task waits off to the right
+      gsap.set(s3, { autoAlpha: 0, scale: 1.08 }); // stats waits faded out
+      gsap.set(s4, { yPercent: 100 });          // result waits below
 
       const tl = gsap.timeline({
         defaults: { ease: "none" },
@@ -238,29 +235,26 @@
           scrub: 0.8, invalidateOnRefresh: true,
           onUpdate: (self) => {
             if (barEl) barEl.style.width = (self.progress * 100).toFixed(1) + "%";
-            if (idxEl) idxEl.textContent = String(Math.min(5, Math.floor(self.progress * 5) + 1)).padStart(2, "0");
+            if (idxEl) idxEl.textContent = String(Math.min(4, Math.floor(self.progress * 4) + 1)).padStart(2, "0");
           }
         }
       });
 
       // each shot animates in as a whole unit (photo + text together) — the cleanest,
       // most cinematic read, and immune to the .from()/immediateRender scrub gotcha
-      tl.to({}, { duration: 0.8 });                              // hold 01
-      tl.to(s2, { xPercent: 0, duration: 1 });                  // 02 slides in from the right
-      tl.to({}, { duration: 0.7 });                             // hold 02
-      tl.to(s3, { yPercent: 0, duration: 1 });                  // 03 rises from below
-      tl.to(strip, { x: () => -panDist(), duration: 2 }, ">-0.15"); // camera pans across the works
-      tl.to({}, { duration: 0.6 });                             // hold
-      tl.to(s4, { autoAlpha: 1, scale: 1, duration: 1 });       // 04 develops in
-      tl.to({}, { duration: 0.7 });                             // hold 04
-      tl.to(s5, { yPercent: 0, duration: 1 });                  // 05 rises — the payoff
-      tl.to({}, { duration: 0.9 });                             // end hold
+      tl.to({}, { duration: 0.9 });                        // hold 01
+      tl.to(s2, { xPercent: 0, duration: 1 });             // 02 slides in from the right
+      tl.to({}, { duration: 0.8 });                        // hold 02
+      tl.to(s3, { autoAlpha: 1, scale: 1, duration: 1 });  // 03 develops in (numbers)
+      tl.to({}, { duration: 0.8 });                        // hold 03
+      tl.to(s4, { yPercent: 0, duration: 1 });             // 04 rises — the payoff
+      tl.to({}, { duration: 0.9 });                        // end hold
 
       return () => { filmSeq.classList.remove("is-film"); };  // revert on resize to mobile
     });
     // ── stacked reveals (mobile) ──
     mmFilm.add("(max-width: 900px)", () => {
-      gsap.utils.toArray(".film-seq .shot__content, .film-seq .shot__head, .film-seq .wframe").forEach((el) => {
+      gsap.utils.toArray(".film-seq .shot__content").forEach((el) => {
         gsap.from(el, {
           y: 30, autoAlpha: 0, duration: 0.9, ease: "expo.out",
           scrollTrigger: { trigger: el, start: "top 85%", once: true }
