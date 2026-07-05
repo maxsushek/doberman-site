@@ -87,6 +87,8 @@ body.menu-open { overflow: hidden; }
   background: var(--ink);
   display: flex; align-items: center; justify-content: center;
 }
+/* the loader plays once per session — hidden before first paint on return visits */
+html.intro-seen .preloader { display: none !important; }
 .preloader__inner { text-align: center; }
 .preloader__logo {
   width: clamp(96px, 12vw, 150px); height: auto;
@@ -95,6 +97,25 @@ body.menu-open { overflow: hidden; }
   animation: logoIn 1.4s var(--ease-out) .15s forwards;
 }
 @keyframes logoIn { to { opacity: 1; transform: none; } }
+/* two taglines, visually linked by a copper stem that draws down between them */
+.preloader__lead {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(.72rem, 1.5vw, 1rem);
+  letter-spacing: .32em; text-indent: .32em;
+  text-transform: uppercase;
+  color: var(--copper-bright);
+  opacity: 0; transform: translateY(10px);
+  animation: logoIn 1.2s var(--ease-out) .5s forwards;
+}
+.preloader__stem {
+  display: block; width: 1px; height: clamp(18px, 3.4vh, 30px);
+  margin: clamp(.75rem, 1.6vh, 1.05rem) auto;
+  background: linear-gradient(180deg, var(--copper-bright), rgba(180, 136, 94, 0));
+  transform: scaleY(0); transform-origin: top center;
+  animation: stemDraw .9s var(--ease-out) .82s forwards;
+}
+@keyframes stemDraw { to { transform: scaleY(1); } }
 .preloader__slogan {
   font-family: var(--font-display);
   font-weight: 300;
@@ -103,7 +124,7 @@ body.menu-open { overflow: hidden; }
   text-transform: uppercase;
   color: var(--bone-dim);
   opacity: 0; transform: translateY(10px);
-  animation: logoIn 1.2s var(--ease-out) .65s forwards;
+  animation: logoIn 1.2s var(--ease-out) 1.05s forwards;
 }
 .preloader__counter {
   position: absolute; right: var(--pad); bottom: var(--pad);

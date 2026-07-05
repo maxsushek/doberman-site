@@ -37,7 +37,13 @@
   <link rel="preconnect" href="https://d2qfyuyywvo19a.cloudfront.net">
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500;600;800&family=Manrope:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="css/main.css?v=30">
+  <script>
+    /* Intro loader plays once per session. If already seen, hide it before the
+       first paint so returning visitors never see a flash of the logo. */
+    try { if (sessionStorage.getItem("db:intro-shown") === "1") document.documentElement.classList.add("intro-seen"); } catch (e) {}
+  </script>
+
+  <link rel="stylesheet" href="css/main.css?v=31">
 
   <script type="application/ld+json">
   {
@@ -74,6 +80,8 @@
   <div class="preloader" id="preloader" aria-hidden="true">
     <div class="preloader__inner">
       <img class="preloader__logo" src="assets/logo_h230.webp" alt="Doberman Corp" width="157" height="230">
+      <p class="preloader__lead">Відновлення та відбудова Харкова</p>
+      <span class="preloader__stem" aria-hidden="true"></span>
       <p class="preloader__slogan">Місто, яке неможливо зламати</p>
     </div>
     <div class="preloader__counter"><span id="loaderCount">00</span></div>
@@ -409,7 +417,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-  <script src="js/main.js?v=27" defer></script>
+  <script src="js/main.js?v=28" defer></script>
   <script type="module" src="js/scene.js?v=26"></script>
 </body>
 </html>

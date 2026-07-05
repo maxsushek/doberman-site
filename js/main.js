@@ -66,19 +66,18 @@
     el.appendChild(sr);
   });
 
-  // hide intro-animated elements BEFORE the preloader curtain lifts,
-  // otherwise the hero flashes in its final state for ~0.5s
-  if (!prefersReduced) {
-    gsap.set(".hero__title .char", { yPercent: 120 });
-    gsap.set([".hero__eyebrow", ".hero__foot"], { opacity: 0 });
-    gsap.set(".hero__sub", { opacity: 0, y: 32 });
-    gsap.set(".header", { yPercent: -120 });
-  }
-
   /* ── Preloader ───────────────────────────── */
   const preloader = document.getElementById("preloader");
   const counterEl = document.getElementById("loaderCount");
   const barEl = document.getElementById("loaderBar");
+
+  // The branded loader plays only once per browser session. On later loads
+  // within the session (navigating the site / returning to the homepage) it is
+  // skipped — an inline <head> script already hid the cover before first paint,
+  // so there is no flash of the logo.
+  const INTRO_KEY = "db:intro-shown";
+  let introSeen = false;
+  try { introSeen = sessionStorage.getItem(INTRO_KEY) === "1"; } catch (e) {}
 
   const heroIntro = () => {
     const tl = gsap.timeline({ defaults: { ease: "expo.out" } });
@@ -96,10 +95,26 @@
       }, 1);
   };
 
+  // hide intro-animated elements before the loader lifts, so the hero never
+  // flashes in its final state (first visit of the session only)
+  const hideForIntro = () => {
+    gsap.set(".hero__title .char", { yPercent: 120 });
+    gsap.set([".hero__eyebrow", ".hero__foot"], { opacity: 0 });
+    gsap.set(".hero__sub", { opacity: 0, y: 32 });
+    gsap.set(".header", { yPercent: -120 });
+  };
+
   if (prefersReduced) {
     preloader.style.display = "none";
     gsap.set([".hero__sub", ".hero__foot", ".hero__eyebrow"], { opacity: 1, y: 0 });
+  } else if (introSeen) {
+    // returning within this session — no loader, no intro; the hero already
+    // sits in its resting (CSS) state, so just drop the pre-hidden cover
+    preloader.style.display = "none";
   } else {
+    // first arrival this session — hide the hero, run the loader, then the intro
+    try { sessionStorage.setItem(INTRO_KEY, "1"); } catch (e) {}
+    hideForIntro();
     let progress = 0;
     const tick = () => {
       // small, frequent steps read as one continuous motion
