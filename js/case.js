@@ -103,7 +103,7 @@
   }
 
   /* ── Anchors ───────────────────────────────── */
-  document.querySelector(".chero__scroll")?.addEventListener("click", (e) => { e.preventDefault(); scrollTo("#context"); });
+  document.querySelector(".chero__scroll")?.addEventListener("click", (e) => { e.preventDefault(); scrollTo("#story"); });
   document.getElementById("toTop")?.addEventListener("click", (e) => { e.preventDefault(); scrollTo("#hero"); });
 
   /* ── GSAP guard: below this line everything animates ── */
@@ -195,13 +195,12 @@
     });
   }
 
-  /* ── Reveals ───────────────────────────────── */
+  /* ── Reveals (generic + CTA char rise) ─────── */
   if (!prefersReduced) {
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       gsap.to(el, { opacity: 1, y: 0, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
-    // lead / quote / cta / ledger / epilogue char rise
-    document.querySelectorAll(".chapter__lead, .cquote__text, .case-cta__title .hero__line, .ledger__title, .epilogue__statement").forEach((el) => {
+    document.querySelectorAll(".case-cta__title .hero__line").forEach((el) => {
       const chars = el.querySelectorAll(".char"); if (!chars.length) return;
       gsap.fromTo(chars, { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: 0.015, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
@@ -209,144 +208,66 @@
     document.querySelectorAll("[data-reveal]").forEach((el) => { el.style.opacity = "1"; el.style.transform = "none"; });
   }
 
-  /* ── Task limits / epilogue facts: sequenced list builds (per-list trigger) ── */
-  if (!prefersReduced) {
-    document.querySelectorAll(".chapter__limits").forEach((list) => {
-      const items = list.querySelectorAll("li");
-      if (items.length) gsap.from(items, {
-        y: 28, opacity: 0, duration: .9, ease: "expo.out", stagger: 0.08,
-        scrollTrigger: { trigger: list, start: "top 85%" }
-      });
-    });
-  }
+  /* ── Story film: a pinned cinematic sequence of scroll-driven shots ──
+     Desktop + motion = the "mini-film"; mobile / reduced-motion stays a clean
+     vertical stack (handled by CSS + the stack reveals below). */
+  const filmSeq = document.querySelector(".film-seq");
+  if (filmSeq && !prefersReduced) {
+    const mmFilm = gsap.matchMedia();
+    // ── pinned film (desktop) ──
+    mmFilm.add("(min-width: 901px)", () => {
+      filmSeq.classList.add("is-film");
+      const stage = filmSeq.querySelector(".film-seq__stage");
+      const shots = gsap.utils.toArray(".film-seq .shot");
+      const [, s2, s3, s4, s5] = shots;
+      const strip = document.getElementById("worksStrip");
+      const idxEl = document.getElementById("filmIdx");
+      const barEl = document.getElementById("filmBar");
 
-  /* ── 03 Ledger: rules draw, sub-items build, sticky ordinal ticks ── */
-  const ledgerItems = gsap.utils.toArray(".ledger__item");
-  if (ledgerItems.length && !prefersReduced) {
-    const ordNums = gsap.utils.toArray(".ledger__ord-num");
-    let ordCur = 0;
-    gsap.set(ordNums, { opacity: (i) => (i === 0 ? 1 : 0), yPercent: (i) => (i === 0 ? 0 : 28) });
-    // masked rise between ordinals — same vocabulary as the char animations
-    const setOrd = (idx) => {
-      if (idx === ordCur || !ordNums[idx]) return;
-      gsap.to(ordNums[ordCur], { yPercent: -28, opacity: 0, duration: .5, ease: "power3.out", overwrite: "auto" });
-      gsap.fromTo(ordNums[idx], { yPercent: 28, opacity: 0 }, { yPercent: 0, opacity: 1, duration: .75, ease: "expo.out", overwrite: "auto" });
-      ordCur = idx;
-    };
-    ledgerItems.forEach((item, i) => {
-      const rule = item.querySelector(".ledger__rule");
-      if (rule) gsap.fromTo(rule, { scaleX: 0 }, {
-        scaleX: 1, duration: 1.1, ease: "expo.out",
-        scrollTrigger: { trigger: item, start: "top 82%", once: true }
-      });
-      const subs = item.querySelectorAll(".ledger__sub li");
-      if (subs.length) gsap.from(subs, {
-        y: 14, opacity: 0, duration: .7, ease: "expo.out", stagger: .07,
-        scrollTrigger: { trigger: item, start: "top 74%", once: true }
-      });
-      ScrollTrigger.create({
-        trigger: item, start: "top 55%", end: "bottom 55%",
-        onToggle: (self) => { if (self.isActive) setOrd(i); }
-      });
-    });
-  }
+      // stack the shots off-screen — each enters over the one before (DOM order = paint order)
+      gsap.set(s2, { xPercent: 100 });
+      gsap.set(s3, { yPercent: 100 });
+      gsap.set(s4, { autoAlpha: 0, scale: 1.08 });
+      gsap.set(s5, { yPercent: 100 });
+      const panDist = () => Math.max(0, strip.scrollWidth - stage.clientWidth + parseFloat(getComputedStyle(stage).paddingLeft || 0));
 
-  /* ── 04 Method: the copper thread becomes the deadline met ── */
-  const methodFlow = document.querySelector(".method__flow");
-  if (methodFlow && !prefersReduced) {
-    // signature: 1px thread scrubs down the axis, lighting each stage as it passes
-    gsap.fromTo("#methodThread", { scaleY: 0 }, {
-      scaleY: 1, ease: "none",
-      scrollTrigger: { trigger: methodFlow, start: "top 62%", end: "bottom 55%", scrub: 0.6 }
-    });
-    gsap.utils.toArray(".method__step:not(.method__step--total)").forEach((step) => {
-      // bidirectional ignition — scrolling back un-lights, the line always tells the truth
-      ScrollTrigger.create({
-        trigger: step, start: "top 60%", end: "bottom 40%",
-        toggleClass: { targets: step, className: "is-lit" }
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: filmSeq, start: "top top", end: "bottom bottom",
+          scrub: 0.8, invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            if (barEl) barEl.style.width = (self.progress * 100).toFixed(1) + "%";
+            if (idxEl) idxEl.textContent = String(Math.min(5, Math.floor(self.progress * 5) + 1)).padStart(2, "0");
+          }
+        }
       });
-      const chips = step.querySelectorAll(".method__chips li");
-      if (chips.length) gsap.from(chips, {
-        y: 12, autoAlpha: 0, duration: .6, ease: "expo.out", stagger: .06,
-        scrollTrigger: { trigger: step, start: "top 80%", once: true }
-      });
-    });
-    const total = document.querySelector(".method__total");
-    if (total) {
-      // block rises, digits tick via the shared count-up — no double animation
-      gsap.from(total, {
-        y: 44, opacity: 0, duration: 1.2, ease: "expo.out",
-        scrollTrigger: { trigger: total, start: "top 82%", once: true }
-      });
-      gsap.fromTo(".method__total-line", { scaleX: 0 }, {
-        scaleX: 1, duration: 1.2, ease: "expo.out", delay: .5,
-        scrollTrigger: { trigger: total, start: "top 82%", once: true }
-      });
-    }
-  }
 
-  /* ── 05 Epilogue: quiet develop, plate parallax, index build ── */
-  const plate = document.querySelector(".epilogue__plate");
-  if (plate && !prefersReduced) {
-    // the entrance group emerges into light where the copy says keys were handed over
-    gsap.fromTo(".epilogue__veil", { opacity: .55 }, {
-      opacity: .12, ease: "none",
-      scrollTrigger: { trigger: plate, start: "top 85%", end: "bottom 45%", scrub: 0.5 }
+      // each shot animates in as a whole unit (photo + text together) — the cleanest,
+      // most cinematic read, and immune to the .from()/immediateRender scrub gotcha
+      tl.to({}, { duration: 0.8 });                              // hold 01
+      tl.to(s2, { xPercent: 0, duration: 1 });                  // 02 slides in from the right
+      tl.to({}, { duration: 0.7 });                             // hold 02
+      tl.to(s3, { yPercent: 0, duration: 1 });                  // 03 rises from below
+      tl.to(strip, { x: () => -panDist(), duration: 2 }, ">-0.15"); // camera pans across the works
+      tl.to({}, { duration: 0.6 });                             // hold
+      tl.to(s4, { autoAlpha: 1, scale: 1, duration: 1 });       // 04 develops in
+      tl.to({}, { duration: 0.7 });                             // hold 04
+      tl.to(s5, { yPercent: 0, duration: 1 });                  // 05 rises — the payoff
+      tl.to({}, { duration: 0.9 });                             // end hold
+
+      return () => { filmSeq.classList.remove("is-film"); };  // revert on resize to mobile
     });
-    gsap.fromTo(plate.querySelector("img"), { yPercent: -4 }, {
-      yPercent: 4, ease: "none",
-      scrollTrigger: { trigger: plate, start: "top bottom", end: "bottom top", scrub: true }
-    });
-  }
-  const epIndex = document.querySelector(".epilogue__index");
-  if (epIndex && !prefersReduced) {
-    const rows = epIndex.querySelectorAll(".epilogue__row");
-    gsap.from(rows, {
-      y: 26, opacity: 0, duration: .9, ease: "expo.out", stagger: .09,
-      scrollTrigger: { trigger: epIndex, start: "top 80%", once: true }
-    });
-    rows.forEach((row) => {
-      const rule = row.querySelector(".epilogue__rule");
-      if (rule) gsap.fromTo(rule, { scaleX: 0 }, {
-        scaleX: 1, duration: 1, ease: "expo.out",
-        scrollTrigger: { trigger: row, start: "top 84%", once: true }
+    // ── stacked reveals (mobile) ──
+    mmFilm.add("(max-width: 900px)", () => {
+      gsap.utils.toArray(".film-seq .shot__content, .film-seq .shot__head, .film-seq .wframe").forEach((el) => {
+        gsap.from(el, {
+          y: 30, autoAlpha: 0, duration: 0.9, ease: "expo.out",
+          scrollTrigger: { trigger: el, start: "top 85%", once: true }
+        });
       });
     });
-    const badges = document.querySelectorAll(".epilogue__badges li");
-    if (badges.length) gsap.from(badges, {
-      y: 10, opacity: 0, duration: .6, ease: "expo.out", stagger: .05,
-      scrollTrigger: { trigger: ".epilogue__badges", start: "top 90%", once: true }
-    });
   }
-
-  /* ── Gallery clip-path reveal ──────────────── */
-  if (!prefersReduced) {
-    document.querySelectorAll("[data-reveal-img] img").forEach((img) => {
-      gsap.to(img, {
-        clipPath: "inset(0 0% 0 0)", scale: 1.02, ease: "power2.out", duration: 1.5,
-        scrollTrigger: { trigger: img.closest("[data-reveal-img]"), start: "top 82%" }
-      });
-    });
-  } else {
-    document.querySelectorAll("[data-reveal-img] img").forEach((im) => { im.style.clipPath = "none"; im.style.transform = "none"; });
-  }
-
-  /* ── Count-up (method total + epilogue index) ── */
-  document.querySelectorAll(".num__val").forEach((el) => {
-    const stat = el.dataset.static;
-    // the card carries the reveal (stagger above); the digit only ticks up — no double animation
-    if (stat != null) { el.textContent = stat; return; }
-    const target = parseFloat(el.dataset.target || "0");
-    const suffix = el.dataset.suffix || "";
-    if (prefersReduced) { el.textContent = target + suffix; return; }
-    const obj = { v: 0 };
-    ScrollTrigger.create({
-      trigger: el, start: "top 85%", once: true,
-      onEnter: () => {
-        gsap.to(obj, { v: target, duration: 1.8, ease: "power2.out", onUpdate: () => { el.textContent = Math.round(obj.v) + suffix; } });
-      }
-    });
-  });
 
   /* ── Object reel: horizontal scroll like the homepage rail ── */
   const mm = gsap.matchMedia();
@@ -359,7 +280,9 @@
       x: () => -getDist(), ease: "none",
       scrollTrigger: {
         trigger: pin, start: "top 14%", end: () => "+=" + getDist() * 1.15,
-        pin: true, scrub: 0.7, invalidateOnRefresh: true, anticipatePin: 1
+        // higher priority → this pin refreshes first, so its spacer is in place
+        // before the film sequence below measures its own scroll positions
+        pin: true, scrub: 0.7, invalidateOnRefresh: true, anticipatePin: 1, refreshPriority: 1
       }
     });
   });

@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500;600;800&family=Manrope:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/main.css?v=27">
-  <link rel="stylesheet" href="css/case.css?v=10">
+  <link rel="stylesheet" href="css/case.css?v=11">
 
   <script type="application/ld+json">
   {
@@ -41,12 +41,7 @@
   <noscript>
     <style>
       .curtain, .cursor, .grain { display: none !important; }
-      [data-reveal], [data-split] .word, .epilogue__plate img, .num__val, .ledger__rule, .ledger__sub li, .method__chips li, .epilogue__row, .epilogue__badges li { opacity: 1 !important; transform: none !important; clip-path: none !important; }
-      #methodThread, .method__total-line, .epilogue__rule { transform: none !important; }
-      .epilogue__veil { opacity: .15 !important; }
-      .method__rn { color: var(--bone) !important; -webkit-text-stroke-color: transparent !important; }
-      .method__no::after { transform: scale(1) !important; }
-      .method__step--total .method__no::after { display: none !important; }
+      [data-reveal], [data-split] .word { opacity: 1 !important; transform: none !important; }
     </style>
   </noscript>
 </head>
@@ -158,196 +153,88 @@
       </div>
     </section>
 
-    <!-- ══════════════ 01 · КОНТЕКСТ ══════════════ -->
-    <section class="chapter" id="context">
-      <p class="chapter__cap"><span>01</span> контекст</p>
-      <h2 class="chapter__lead"><span data-split>Двопідʼїзний дім, зруйнований війною.</span></h2>
-      <p class="chapter__body" data-reveal>Багатоквартирний житловий будинок у селі Руська Лозова на Харківщині зазнав значних пошкоджень унаслідок російської агресії. Село розташоване поблизу лінії розмежування.</p>
-    </section>
-
-    <!-- ══════════════ 02 · ЗАДАЧА ══════════════ -->
-    <section class="chapter chapter--split" id="task">
-      <div class="chapter__col">
-        <p class="chapter__cap"><span>02</span> задача</p>
-        <h2 class="chapter__lead"><span data-split>Повне відновлення. Під ключ.</span></h2>
-      </div>
-      <div class="chapter__col chapter__col--body">
-        <p data-reveal>Повернути мешканцям їхні домівки: від аварійного стану до будинку, готового до життя. У прифронтовій зоні, з логістикою матеріалів у складних умовах.</p>
-        <ul class="chapter__limits">
-          <li><span>прифронтова зона</span>Роботи поблизу лінії розмежування</li>
-          <li><span>строк</span>Стислий графік відбудови</li>
-          <li><span>стан</span>Відновлення з аварійного стану</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- ══════════════ СОЦІАЛЬНА ЦИТАТА ══════════════ -->
-    <section class="cquote">
-      <blockquote class="cquote__text">
-        <span data-split>Для громад поблизу лінії розмежування така відбудова не лише технічне завдання, а й важливий соціальний крок:</span>
-        <em data-split>повернення людей у рідні домівки.</em>
-      </blockquote>
-    </section>
-
-    <!-- ══════════════ 03 · ОБСЯГ РОБІТ (ledger) ══════════════ -->
-    <section class="ledger" id="scope">
-      <div class="ledger__rail">
-        <p class="chapter__cap"><span>03</span> обсяг робіт</p>
-        <h2 class="chapter__lead"><span data-split>Не косметичний ремонт: повний цикл.</span></h2>
-        <div class="ledger__ord" aria-hidden="true">
-          <span class="ledger__ord-mask">
-            <span class="ledger__ord-num is-current">01</span>
-            <span class="ledger__ord-num">02</span>
-            <span class="ledger__ord-num">03</span>
-            <span class="ledger__ord-num">04</span>
-          </span>
-          <span class="ledger__ord-total">/ 04</span>
+    <!-- ════════════ ІСТОРІЯ ПРОЄКТУ · КІНОСТРІЧКА (scroll film) ════════════ -->
+    <section class="film-seq" id="story" aria-label="Історія проєкту">
+      <div class="film-seq__stage">
+        <div class="film-seq__hud" aria-hidden="true">
+          <span class="film-seq__idx"><b id="filmIdx">01</b> / 05</span>
+          <span class="film-seq__bar"><i id="filmBar"></i></span>
         </div>
-      </div>
-      <ol class="ledger__list" role="list">
-        <li class="ledger__item">
-          <i class="ledger__rule" aria-hidden="true"></i>
-          <span class="ledger__inline-ord" aria-hidden="true">01 / 04</span>
-          <h3 class="ledger__title"><span data-split>Відновлення конструктиву</span></h3>
-          <ul class="ledger__sub" role="list">
-            <li>Демонтаж аварійних конструкцій</li>
-            <li>Посилення несучих стін армувальними матеріалами</li>
-            <li>Нова покрівля з&nbsp;гідро- та теплоізоляцією</li>
-          </ul>
-        </li>
-        <li class="ledger__item">
-          <i class="ledger__rule" aria-hidden="true"></i>
-          <span class="ledger__inline-ord" aria-hidden="true">02 / 04</span>
-          <h3 class="ledger__title"><span data-split>Інженерні мережі</span></h3>
-          <ul class="ledger__sub" role="list">
-            <li>Електрика, вода, тепло, вентиляція</li>
-            <li>Слабкострумові мережі будинку</li>
-            <li>Індивідуальний облік на кожну квартиру</li>
-          </ul>
-        </li>
-        <li class="ledger__item">
-          <i class="ledger__rule" aria-hidden="true"></i>
-          <span class="ledger__inline-ord" aria-hidden="true">03 / 04</span>
-          <h3 class="ledger__title"><span data-split>Квартири та спільні простори</span></h3>
-          <ul class="ledger__sub" role="list">
-            <li>Капітальний ремонт квартир і&nbsp;підʼїздів</li>
-            <li>Енергоощадні вікна й&nbsp;двері</li>
-            <li>Чистове оздоблення</li>
-          </ul>
-        </li>
-        <li class="ledger__item">
-          <i class="ledger__rule" aria-hidden="true"></i>
-          <span class="ledger__inline-ord" aria-hidden="true">04 / 04</span>
-          <h3 class="ledger__title"><span data-split>Благоустрій території</span></h3>
-          <ul class="ledger__sub" role="list">
-            <li>Пішохідні доріжки та озеленення</li>
-            <li>Зовнішнє освітлення</li>
-            <li>Навігаційні вказівники</li>
-          </ul>
-        </li>
-      </ol>
-    </section>
 
-    <!-- ══════════════ 04 · ЯК МИ ПРАЦЮВАЛИ (method · copper thread) ══════════════ -->
-    <section class="method" id="process">
-      <div class="method__head">
-        <p class="chapter__cap"><span>04</span> як ми працювали</p>
-        <h2 class="chapter__lead"><span data-split>Три фази. Жодної паузи.</span></h2>
-      </div>
-      <div class="method__flow">
-        <span class="method__thread" aria-hidden="true"><i id="methodThread"></i></span>
-        <article class="method__step">
-          <div class="method__no"><span class="method__rn">I</span></div>
-          <div class="method__body" data-reveal>
-            <h3>Обстеження та проєктування</h3>
-            <p>Технічне обстеження конструкцій, дефектні акти, проєктні рішення з&nbsp;урахуванням ДБН і&nbsp;вимог воєнного часу.</p>
-            <ul class="method__chips" aria-hidden="true"><li>дефектні акти</li><li>проєкт</li></ul>
+        <!-- 01 · Контекст -->
+        <article class="shot shot--intro" data-shot>
+          <div class="shot__media"><img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_2000,h_1200/rus-lozova-5_ctlw7d.png" alt="Багатоквартирний будинок у Руській Лозовій" loading="lazy"></div>
+          <span class="shot__scrim"></span>
+          <div class="shot__content">
+            <p class="shot__cap"><span>01</span> контекст</p>
+            <h2 class="shot__title">Дім, пошкоджений війною.</h2>
+            <p class="shot__lead">Двопідʼїзний житловий будинок у&nbsp;Руській Лозовій, поблизу лінії розмежування, зазнав значних пошкоджень унаслідок російської агресії.</p>
           </div>
         </article>
-        <article class="method__step">
-          <div class="method__no"><span class="method__rn">II</span></div>
-          <div class="method__body" data-reveal>
-            <h3>Відбудова під ключ</h3>
-            <p>Повний цикл робіт із логістикою матеріалів у&nbsp;прифронтову зону за стислим графіком.</p>
-            <ul class="method__chips" aria-hidden="true"><li>повний цикл</li><li>прифронтова логістика</li></ul>
-          </div>
-        </article>
-        <article class="method__step">
-          <div class="method__no"><span class="method__rn">III</span></div>
-          <div class="method__body" data-reveal>
-            <h3>Контроль, здача, ключі</h3>
-            <p>Держкомісія, приймання робіт і&nbsp;передача ключів мешканцям.</p>
-            <ul class="method__chips" aria-hidden="true"><li>держкомісія</li><li>ключі мешканцям</li></ul>
-          </div>
-        </article>
-        <div class="method__step method__step--total">
-          <div class="method__no" aria-hidden="true"></div>
-          <div class="method__total">
-            <span class="method__total-num"><span class="num__val" data-target="360">360</span></span>
-            <i class="method__total-line" aria-hidden="true"></i>
-            <span class="method__total-label">днів: від обстеження до ключів</span>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- ══════════════ 05 · РЕЗУЛЬТАТ (epilogue) ══════════════ -->
-    <section class="epilogue" id="result">
-      <p class="chapter__cap"><span>05</span> результат</p>
-      <h2 class="epilogue__statement"><span data-split>Дім готовий,</span> <em data-split>село оживає.</em></h2>
-      <div class="epilogue__grid">
-        <div class="epilogue__plate-col">
-          <figure class="epilogue__plate" data-reveal-img>
-            <img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_1400/rus-lozova-6_jh6evu.png" alt="Вхідна група відновленого будинку, Руська Лозова" loading="lazy">
-            <span class="epilogue__veil" aria-hidden="true"></span>
-          </figure>
-          <p class="epilogue__plate-cap">вхідна група · ключі передано мешканцям</p>
-        </div>
-        <div class="epilogue__data">
-          <dl class="epilogue__index">
-            <div class="epilogue__row">
-              <i class="epilogue__rule" aria-hidden="true"></i>
-              <dt>відновлена площа · м²</dt>
-              <dd><span class="num__val" data-target="500">500</span></dd>
-            </div>
-            <div class="epilogue__row">
-              <i class="epilogue__rule" aria-hidden="true"></i>
-              <dt>підʼїзди</dt>
-              <dd><span class="num__val" data-static="2">2</span></dd>
-            </div>
-            <div class="epilogue__row">
-              <i class="epilogue__rule" aria-hidden="true"></i>
-              <dt>етапів робіт</dt>
-              <dd><span class="num__val" data-static="6">6</span></dd>
-            </div>
-            <div class="epilogue__row">
-              <i class="epilogue__rule" aria-hidden="true"></i>
-              <dt>рік здачі</dt>
-              <dd><span class="num__val" data-static="2024">2024</span></dd>
-            </div>
-          </dl>
-          <ul class="chapter__limits epilogue__facts">
-            <li><span>виконання</span><b class="epilogue__hl">100% робіт і&nbsp;100% термінів</b></li>
-            <li><span>бюджет</span>Без перевищення кошторису й&nbsp;без затримок</li>
-            <li><span>стандарт</span>Відповідність ДБН і&nbsp;вимогам безпеки воєнного часу</li>
-          </ul>
-        </div>
-      </div>
-      <div class="epilogue__colophon">
-        <div data-reveal>
-          <span class="menu__cap">замовник</span>
-          <p>Департамент капітального будівництва Харківської&nbsp;ОДА</p>
-        </div>
-        <div data-reveal>
-          <span class="menu__cap">програма</span>
-          <p>Державна програма відновлення житлового фонду</p>
-        </div>
-        <ul class="epilogue__badges" role="list">
-          <li>держпрограма</li>
-          <li>ДБН</li>
-          <li>прифронтова зона</li>
-          <li>під ключ</li>
-        </ul>
+        <!-- 02 · Задача -->
+        <article class="shot shot--task" data-shot>
+          <div class="shot__media"><img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_2000,h_1200/rus-lozova-7_zzgqhu.png" alt="Оновлений підʼїзд будинку" loading="lazy"></div>
+          <span class="shot__scrim"></span>
+          <div class="shot__content">
+            <p class="shot__cap"><span>02</span> задача</p>
+            <h2 class="shot__title">Повне відновлення. Під ключ.</h2>
+            <p class="shot__lead">Повернути мешканцям домівки: від аварійного стану до житла, готового до&nbsp;життя. З&nbsp;логістикою матеріалів у&nbsp;прифронтову зону.</p>
+          </div>
+        </article>
+
+        <!-- 03 · Обсяг робіт (горизонтальна панорама) -->
+        <article class="shot shot--works" data-shot>
+          <div class="shot__head">
+            <p class="shot__cap"><span>03</span> обсяг робіт</p>
+            <h2 class="shot__title">Повний цикл робіт.</h2>
+          </div>
+          <div class="works-strip" id="worksStrip">
+            <figure class="wframe">
+              <div class="wframe__media"><img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_1400,h_1750/rus-lozova-3_qthhfp.png" alt="Відновлення конструктиву" loading="lazy"></div>
+              <figcaption><b>Конструктив</b><span>Демонтаж аварійних конструкцій, посилення несучих стін, нова покрівля.</span></figcaption>
+            </figure>
+            <figure class="wframe">
+              <div class="wframe__media"><img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_1400,h_1750/rus-lozova-4_uo1au7.png" alt="Інженерні мережі та освітлення" loading="lazy"></div>
+              <figcaption><b>Інженерні мережі</b><span>Електрика, вода, тепло, вентиляція та індивідуальний облік на кожну квартиру.</span></figcaption>
+            </figure>
+            <figure class="wframe">
+              <div class="wframe__media"><img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_1400,h_1750/rus-lozova-8_cwapba.png" alt="Відновлені квартири та спільні простори" loading="lazy"></div>
+              <figcaption><b>Квартири та простори</b><span>Капітальний ремонт квартир і&nbsp;підʼїздів, енергоощадні вікна й&nbsp;двері, чистове оздоблення.</span></figcaption>
+            </figure>
+            <figure class="wframe">
+              <div class="wframe__media"><img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_1400,h_1750/rus-lozova-2_caozyh.png" alt="Благоустрій прибудинкової території" loading="lazy"></div>
+              <figcaption><b>Благоустрій</b><span>Пішохідні доріжки, озеленення, зовнішнє освітлення та навігаційні вказівники.</span></figcaption>
+            </figure>
+          </div>
+        </article>
+
+        <!-- 04 · Результат у цифрах -->
+        <article class="shot shot--stats" data-shot>
+          <div class="shot__media shot__media--dim"><img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_2000,h_1200/rus-lozova-3_qthhfp.png" alt="" loading="lazy" aria-hidden="true"></div>
+          <span class="shot__scrim"></span>
+          <div class="shot__content shot__content--center">
+            <p class="shot__cap shot__cap--center"><span>04</span> результат у&nbsp;цифрах</p>
+            <ul class="stats" role="list">
+              <li class="stat"><b>500</b><span>м² відновленої площі</span></li>
+              <li class="stat"><b>360</b><span>днів від обстеження до ключів</span></li>
+              <li class="stat"><b>2</b><span>відновлені підʼїзди</span></li>
+              <li class="stat"><b>2024</b><span>рік введення в&nbsp;експлуатацію</span></li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- 05 · Результат -->
+        <article class="shot shot--result" data-shot>
+          <div class="shot__media"><img src="https://res.cloudinary.com/o4y7b734/image/upload/f_auto,q_auto,c_fill,g_auto,w_2000,h_1200/rus-lozova-6_jh6evu.png" alt="Вхідна група відновленого будинку, Руська Лозова" loading="lazy"></div>
+          <span class="shot__scrim"></span>
+          <div class="shot__content">
+            <p class="shot__cap"><span>05</span> результат</p>
+            <h2 class="shot__title">Дім готовий, <em>село оживає.</em></h2>
+            <p class="shot__lead">Введено в&nbsp;експлуатацію без перевищення бюджету й&nbsp;без критичних затримок. Повернення людей у&nbsp;рідні домівки.</p>
+            <p class="shot__client">замовник · Департамент капітального будівництва Харківської&nbsp;ОДА</p>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -394,6 +281,6 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-  <script src="js/case.js?v=6" defer></script>
+  <script src="js/case.js?v=7" defer></script>
 </body>
 </html>
