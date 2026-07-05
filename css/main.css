@@ -177,10 +177,16 @@ body.menu-open { overflow: hidden; }
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
   padding: clamp(16px, 2.5vw, 28px) var(--pad);
+  /* clear the notch / status bar (page uses viewport-fit=cover) */
+  padding-top: calc(clamp(16px, 2.5vw, 28px) + env(safe-area-inset-top, 0px));
   color: var(--bone);
   /* soft halo keeps bone text readable over bright video sky */
   filter: drop-shadow(0 1px 10px rgba(11, 11, 12, .55));
   transition: transform .6s var(--ease-out);
+}
+/* on phones the buttons sat too tight to the top edge — drop them a bit lower */
+@media (max-width: 640px) {
+  .header { padding-top: calc(26px + env(safe-area-inset-top, 0px)); }
 }
 /* thin scrim under the persistent header — readability over any section */
 .header::before {

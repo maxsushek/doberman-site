@@ -1,0 +1,9 @@
+# GitHub Pages (Jekyll) config.
+# The site is plain hand-built HTML — Jekyll only copies files. This list keeps
+# the build sources out of the published site (only the generated root pages,
+# css/, js/ and assets/ are served).
+exclude:
+  - src
+  - partials
+  - build.py
+  - README.md
