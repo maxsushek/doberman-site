@@ -325,38 +325,47 @@
   text-transform: uppercase; color: var(--bone-dim); line-height: 1.5;
 }
 
-/* leadership cards */
-.team { max-width: 1400px; margin: 0 auto; padding: clamp(4rem, 10vh, 8rem) var(--pad) clamp(7rem, 18vh, 14rem); }
-.team__head { margin-bottom: clamp(2.6rem, 6vh, 4rem); }
+/* team — horizontal pinned scroll (one person per slide); mobile = vertical stack */
+.team { background: var(--ink); overflow: hidden; }
+.team__head { padding: clamp(4rem, 10vh, 8rem) var(--pad) clamp(2rem, 5vh, 3.4rem); max-width: 1500px; margin: 0 auto; }
 .team__title {
   margin-top: 1.4rem; font-family: var(--font-display); font-weight: 300;
   font-size: clamp(1.8rem, 4.4vw, 3.4rem); line-height: 1.08; letter-spacing: -.01em;
 }
-.team__grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(1.6rem, 4vw, 3.2rem); max-width: 900px; }
+.team__title .word { display: inline-block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+.team__title .char { display: inline-block; will-change: transform; }
+.team__pin { overflow: hidden; }
+.team__track { display: flex; flex-direction: column; gap: clamp(28px, 5vw, 48px); padding: 0 var(--pad) clamp(3rem, 8vh, 5rem); width: 100%; }
+.team__card { width: 100%; }
 .team__portrait {
   position: relative; aspect-ratio: 4 / 5; overflow: hidden;
-  background: radial-gradient(78% 78% at 50% 28%, #1b1712, var(--ink-2) 72%);
+  background: radial-gradient(78% 78% at 50% 24%, #1b1712, var(--ink-2) 72%);
   border: 1px solid var(--line);
 }
 .team__paw {
   position: absolute; inset: 0; z-index: 1;
   display: flex; align-items: center; justify-content: center; opacity: .13;
 }
-.team__paw img { width: 44%; filter: grayscale(1) brightness(2); }
+.team__paw img { width: 42%; filter: grayscale(1) brightness(2); }
 .team__cutout {
   position: absolute; inset: 0; z-index: 2;
-  width: 100%; height: 100%; object-fit: cover; object-position: center 12%;
+  width: 100%; height: 100%; object-fit: cover; object-position: center 8%;
   opacity: 0;   /* revealed only once the real cutout photo has loaded */
-  filter: grayscale(28%) brightness(.96);
-  transition: opacity .8s var(--ease-out), filter .6s var(--ease-out), scale 1.2s var(--ease-out); scale: 1.01;
+  filter: grayscale(30%) brightness(.94);
+  transition: opacity .8s var(--ease-out), filter .6s var(--ease-out), scale 1.2s var(--ease-out); scale: 1.02;
 }
 .team__portrait.is-loaded .team__cutout { opacity: 1; }
+.team__n {
+  position: absolute; top: clamp(12px,1.4vw,20px); left: clamp(14px,1.6vw,22px); z-index: 4;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: .2em; color: var(--copper);
+  text-shadow: 0 1px 10px rgba(11,11,12,.8);
+}
 .team__portrait::after {
   content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
-  background: linear-gradient(180deg, transparent 60%, rgba(11,11,12,.55));
+  background: linear-gradient(180deg, transparent 62%, rgba(11,11,12,.5));
 }
 @media (hover: hover) and (pointer: fine) {
-  .team__card:hover .team__cutout { filter: grayscale(0%) brightness(1); scale: 1.04; }
+  .team__card:hover .team__cutout { filter: grayscale(0%) brightness(1); scale: 1.05; }
 }
 .team__card figcaption { padding-top: clamp(1rem, 2vw, 1.4rem); }
 .team__role {
@@ -367,17 +376,22 @@
   display: block; font-family: var(--font-display); font-weight: 400;
   font-size: clamp(1.3rem, 2.4vw, 2rem); text-transform: uppercase; letter-spacing: .01em;
 }
+@media (min-width: 901px) and (prefers-reduced-motion: no-preference) {
+  .team__track { flex-direction: row; width: max-content; gap: clamp(24px, 2.6vw, 44px); align-items: start; }
+  .team__card { width: clamp(340px, 33vw, 500px); }
+}
 
-/* masked char rise on the team display type (case.js drives it) */
-.tstory__lead .word, .tstory__statement .word, .tstory__quote .word, .team__title .word {
-  display: inline-block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em;
-}
-.tstory__lead .char, .tstory__statement .char, .tstory__quote .char, .team__title .char {
-  display: inline-block; will-change: transform;
-}
+/* pull-quote masked char rise (case.js drives it) */
+.tstory__quote .word { display: inline-block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+.tstory__quote .char { display: inline-block; will-change: transform; }
+
+/* story word light-up on scrub (manifesto-style, driven by case.js).
+   only the JS-created .w spans dim — the bare element stays readable in no-js/reduced */
+.tstory [data-lightup] .w { color: rgba(236,232,225,.15); transition: color .25s linear; }
+.tstory [data-lightup] .w.is-lit { color: var(--bone); }
+.tstory__mission[data-lightup] .w.is-lit { color: var(--copper-bright); }
 
 @media (max-width: 720px) {
-  .team__grid { grid-template-columns: 1fr; max-width: 420px; }
   .tstory__quote--right { text-align: left; margin-left: 0; }
 }
 

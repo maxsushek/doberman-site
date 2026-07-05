@@ -35,7 +35,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500;600;800&family=Manrope:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/main.css?v=30">
-  <link rel="stylesheet" href="css/case.css?v=14">
+  <link rel="stylesheet" href="css/case.css?v=15">
 
   <script type="application/ld+json">
   {
@@ -142,7 +142,7 @@
     <!-- ══════════════ ІСТОРІЯ / МІСІЯ ══════════════ -->
     <section class="tstory" id="story">
       <p class="chapter__cap"><span>·</span> хто ми</p>
-      <h2 class="tstory__lead"><span data-split>DOBERMAN розпочав роботу ще у&nbsp;2011&nbsp;році.</span></h2>
+      <h2 class="tstory__lead" data-lightup>DOBERMAN розпочав роботу ще у&nbsp;2011&nbsp;році.</h2>
       <p class="tstory__body" data-reveal>Уже тоді це була велика, згуртована команда досвідчених інженерів і&nbsp;будівельників, які крок за&nbsp;кроком напрацьовували репутацію надійного підрядника в&nbsp;Харкові.</p>
 
       <!-- часова лінія -->
@@ -161,7 +161,7 @@
 
       <p class="tstory__body" data-reveal>Починали з&nbsp;ремонту пошкоджених будинків і&nbsp;відновлення соціальної інфраструктури, а&nbsp;згодом поступово перейшли до&nbsp;комплексних проєктів: відбудова критичної інфраструктури, будівництво укриттів, підземних шкіл і&nbsp;садочків, медичних закладів та&nbsp;енергетичних обʼєктів.</p>
 
-      <h2 class="tstory__statement" data-reveal><span data-split>Команда нового покоління</span> <em data-split>будівельників Харкова.</em></h2>
+      <h2 class="tstory__statement" data-lightup>Команда нового покоління будівельників Харкова.</h2>
       <p class="tstory__body" data-reveal>Ми свідомо робимо ставку на&nbsp;молодь: студентів, учнів професійно-технічних училищ і&nbsp;молодих спеціалістів після інститутів, і&nbsp;поєднуємо їхню енергію та&nbsp;сучасний підхід із величезним досвідом визнаних майстрів будівництва, архітектури й&nbsp;управління проєктами.</p>
 
       <blockquote class="tstory__quote tstory__quote--right">
@@ -171,36 +171,50 @@
 
       <p class="tstory__body" data-reveal>Саме ця синергія дає нам змогу поєднувати сучасні технології, цифрове проєктування та&nbsp;вимоги цивільного захисту. Ми працюємо прозоро, дотримуємось ДБН і&nbsp;бачимо в&nbsp;кожному проєкті не&nbsp;просто квадратні метри, а&nbsp;безпеку й&nbsp;гідні умови життя для людей.</p>
 
-      <p class="tstory__mission" data-reveal>Наша мета&nbsp;— щоб мешканці Харківщини повернулися до&nbsp;своїх домівок, а&nbsp;міста й&nbsp;громади отримали надійну інфраструктуру, готову до&nbsp;викликів воєнного часу та&nbsp;майбутньої відбудови країни.</p>
+      <p class="tstory__mission" data-lightup>Наша мета: щоб мешканці Харківщини повернулися до&nbsp;своїх домівок, а&nbsp;міста й&nbsp;громади отримали надійну інфраструктуру, готову до&nbsp;викликів воєнного часу та&nbsp;майбутньої відбудови країни.</p>
     </section>
 
-    <!-- ══════════════ КЕРІВНИЦТВО ══════════════ -->
+    <!-- ══════════════ КОМАНДА · горизонтальний скрол ══════════════ -->
     <section class="team" id="team">
       <div class="team__head">
-        <p class="chapter__cap"><span>·</span> керівництво</p>
-        <h2 class="team__title"><span data-split>Хто веде DOBERMAN.</span></h2>
+        <p class="chapter__cap"><span>·</span> команда</p>
+        <h2 class="team__title"><span data-split>Хто відбудовує Харків.</span></h2>
       </div>
-      <div class="team__grid">
-        <figure class="team__card" data-reveal>
-          <div class="team__portrait" data-portrait="artem">
-            <img class="team__cutout" src="assets/team/artem-krasnov.png" alt="Артем Краснов" loading="lazy" onload="this.closest('.team__portrait').classList.add('is-loaded')">
-            <span class="team__paw" aria-hidden="true"><img src="assets/logo_h230.webp" alt=""></span>
-          </div>
-          <figcaption>
-            <span class="team__role">керівник фірми</span>
-            <b class="team__name">Артем Краснов</b>
-          </figcaption>
-        </figure>
-        <figure class="team__card" data-reveal>
-          <div class="team__portrait" data-portrait="viacheslav">
-            <img class="team__cutout" src="assets/team/viacheslav-potyahailo.png" alt="Вячеслав Потягайло" loading="lazy" onload="this.closest('.team__portrait').classList.add('is-loaded')">
-            <span class="team__paw" aria-hidden="true"><img src="assets/logo_h230.webp" alt=""></span>
-          </div>
-          <figcaption>
-            <span class="team__role">керівник фірми</span>
-            <b class="team__name">Вячеслав Потягайло</b>
-          </figcaption>
-        </figure>
+      <div class="team__pin" id="teamPin">
+        <div class="team__track" id="teamTrack">
+          <figure class="team__card">
+            <div class="team__portrait">
+              <img class="team__cutout" src="assets/team/artem-krasnov.png" alt="Артем Краснов" loading="lazy" onload="this.closest('.team__portrait').classList.add('is-loaded')">
+              <span class="team__paw" aria-hidden="true"><img src="assets/logo_h230.webp" alt=""></span>
+              <span class="team__n" aria-hidden="true">01</span>
+            </div>
+            <figcaption><span class="team__role">засновник</span><b class="team__name">Артем Краснов</b></figcaption>
+          </figure>
+          <figure class="team__card">
+            <div class="team__portrait">
+              <img class="team__cutout" src="assets/team/viacheslav-potyahailo.png" alt="Вячеслав Потягайло" loading="lazy" onload="this.closest('.team__portrait').classList.add('is-loaded')">
+              <span class="team__paw" aria-hidden="true"><img src="assets/logo_h230.webp" alt=""></span>
+              <span class="team__n" aria-hidden="true">02</span>
+            </div>
+            <figcaption><span class="team__role">засновник</span><b class="team__name">Вячеслав Потягайло</b></figcaption>
+          </figure>
+          <figure class="team__card">
+            <div class="team__portrait">
+              <img class="team__cutout" src="assets/team/tymofii.png" alt="Тимофій, інженер з експлуатації" loading="lazy" onload="this.closest('.team__portrait').classList.add('is-loaded')">
+              <span class="team__paw" aria-hidden="true"><img src="assets/logo_h230.webp" alt=""></span>
+              <span class="team__n" aria-hidden="true">03</span>
+            </div>
+            <figcaption><span class="team__role">інженер з&nbsp;експлуатації</span><b class="team__name">Тимофій</b></figcaption>
+          </figure>
+          <figure class="team__card">
+            <div class="team__portrait">
+              <img class="team__cutout" src="assets/team/vladyslav.png" alt="Владислав, інженер проєктно-технічного відділу" loading="lazy" onload="this.closest('.team__portrait').classList.add('is-loaded')">
+              <span class="team__paw" aria-hidden="true"><img src="assets/logo_h230.webp" alt=""></span>
+              <span class="team__n" aria-hidden="true">04</span>
+            </div>
+            <figcaption><span class="team__role">інженер проєктно-технічного відділу</span><b class="team__name">Владислав</b></figcaption>
+          </figure>
+        </div>
       </div>
     </section>
 
@@ -247,6 +261,6 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-  <script src="js/case.js?v=10" defer></script>
+  <script src="js/case.js?v=11" defer></script>
 </body>
 </html>

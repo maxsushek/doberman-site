@@ -200,9 +200,19 @@
     document.querySelectorAll("[data-reveal]").forEach((el) => {
       gsap.to(el, { opacity: 1, y: 0, duration: 1.1, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
-    document.querySelectorAll(".case-cta__title .hero__line, .tstory__lead, .tstory__statement, .tstory__quote, .team__title").forEach((el) => {
+    document.querySelectorAll(".case-cta__title .hero__line, .tstory__quote, .team__title").forEach((el) => {
       const chars = el.querySelectorAll(".char"); if (!chars.length) return;
       gsap.fromTo(chars, { yPercent: 110 }, { yPercent: 0, duration: 1.1, stagger: 0.015, ease: "expo.out", scrollTrigger: { trigger: el, start: "top 88%" } });
+    });
+    // team story: big lines light up word-by-word as you scroll (manifesto-style WOW)
+    document.querySelectorAll("[data-lightup]").forEach((el) => {
+      const words = el.textContent.trim().split(/[ \n\r\t]+/);
+      el.innerHTML = words.map((w) => '<span class="w">' + w + "</span>").join(" ");
+      const wEls = el.querySelectorAll(".w");
+      ScrollTrigger.create({
+        trigger: el, start: "top 84%", end: "top 34%", scrub: true,
+        onUpdate: (self) => { const lit = Math.ceil(self.progress * wEls.length); wEls.forEach((w, i) => w.classList.toggle("is-lit", i < lit)); }
+      });
     });
   } else {
     document.querySelectorAll("[data-reveal]").forEach((el) => { el.style.opacity = "1"; el.style.transform = "none"; });
@@ -295,6 +305,21 @@
         // higher priority → this pin refreshes first, so its spacer is in place
         // before the film sequence below measures its own scroll positions
         pin: true, scrub: 0.7, invalidateOnRefresh: true, anticipatePin: 1, refreshPriority: 1
+      }
+    });
+  });
+
+  /* ── Team rail: horizontal pinned scroll, one person per slide (team page) ── */
+  mm.add("(min-width: 901px) and (prefers-reduced-motion: no-preference)", () => {
+    const track = document.getElementById("teamTrack");
+    const pin = document.getElementById("teamPin");
+    if (!track || !pin) return;
+    const getDist = () => Math.max(0, track.scrollWidth - window.innerWidth);
+    gsap.to(track, {
+      x: () => -getDist(), ease: "none",
+      scrollTrigger: {
+        trigger: pin, start: "top 12%", end: () => "+=" + getDist() * 1.15,
+        pin: true, scrub: 0.7, invalidateOnRefresh: true, anticipatePin: 1
       }
     });
   });
