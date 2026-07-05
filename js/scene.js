@@ -187,6 +187,9 @@ const resize = () => {
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   paw.position.x = w < 900 ? 0 : 7;
+  // on mobile the copy stacks at the top of the frame, so drop the mark into
+  // the lower portion to keep it clear of the title + list (no overlap)
+  paw.position.y = w < 700 ? -6.5 : w < 900 ? -4 : 0;
   // narrow viewports frame a tall slice — shrink the mark so it keeps its air
   paw.scale.setScalar(w < 700 ? 0.66 : w < 900 ? 0.8 : 1);
   camera.lookAt(w < 900 ? 0 : 2.2, 0, 0);
