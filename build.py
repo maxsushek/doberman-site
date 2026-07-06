@@ -57,7 +57,13 @@ _PROTECT = re.compile(r"(<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->|<[
                       re.DOTALL | re.IGNORECASE)
 _LEAD = r'(?<![^\s(«"„])'                                  # preceded by a boundary or start
 _ONE = re.compile(_LEAD + r'([увійзоаУВІЙЗОА])[ \t]+(?=[^\s<])')
-_TWO = re.compile(_LEAD + r'(до|від|під|над|при|із|зі|До|Від|Під|Над|При|Із|Зі)[ \t]+(?=[^\s<])')
+# full set of short UA prepositions / conjunctions / particles that must not
+# end a line — glued to the following word (both lower- and sentence-initial case)
+_PREPS = ("до", "від", "за", "на", "по", "під", "над", "при", "про", "без", "для",
+          "через", "між", "із", "зі", "об", "та", "як", "що", "бо", "чи", "аж",
+          "не", "ні", "це", "де", "ще")
+_PREP_ALT = "|".join(sorted(set(_PREPS) | {w.capitalize() for w in _PREPS}, key=len, reverse=True))
+_TWO = re.compile(_LEAD + r"(" + _PREP_ALT + r")[ \t]+(?=[^\s<])")
 _NUM = re.compile(r'(\d)[ \t]+(?=[0-9A-Za-zА-Яа-яІЇЄҐіїєґ°])')  # 7 будинків, 2026 Doberman, 10 000
 _SIGN = re.compile(r'([©№§])[ \t]+(?=\d)')                 # © 2026, № 3
 _ABBR = re.compile(r'(\b(?:вул|просп|пров|бул|наб|пл)\.)[ \t]+(?=[A-Za-zА-Яа-яІЇЄҐіїєґ])')
