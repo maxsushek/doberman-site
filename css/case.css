@@ -408,3 +408,18 @@
   [data-reveal] { opacity: 1; transform: none; }
   .curtain { display: none; }
 }
+
+/* ══════════════ TEXT-WRAP · читабельні переноси рядків ══════════════ */
+.chero__title,
+.team__title,
+.reel__lead,
+.reel__item figcaption b,
+.shot__title,
+.tstory__lead,
+.tstory__statement,
+.tstory__mission,
+.tstory__quote { text-wrap: balance; }
+.reel__item figcaption,
+.team__role,
+.team__name,
+.shot__lead { text-wrap: pretty; }

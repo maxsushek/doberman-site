@@ -836,3 +836,12 @@ body.menu-open .menu-btn__lines i:last-child { width: 100%; transform: translate
   .menu__word { transform: none; }
   .menu__aside { opacity: 1; transform: none; }
 }
+
+/* ══════════════ TEXT-WRAP · читабельні переноси рядків ══════════════ */
+/* короткі заголовки балансуються — без самотнього слова в останньому рядку */
+.projects__title,
+.values__word,
+.section-cap { text-wrap: balance; }
+/* акуратні переноси для не-<p> текстових блоків (p/blockquote вже мають pretty глобально) */
+.values__desc,
+.digital__list li { text-wrap: pretty; }

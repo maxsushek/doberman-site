@@ -46,10 +46,44 @@ def resolve_includes(s, _depth=0):
         raise RuntimeError("include nesting too deep (cycle?)")
     return INCLUDE.sub(lambda m: resolve_includes(rd(m.group(1)), _depth + 1), s)
 
+# ── Ukrainian typographer ─────────────────────────────────────────────
+# Glue prepositions / numbers to the next word with a non-breaking space so no
+# line ever ends on a one-letter preposition ("в", "і", "з"…) or splits "7 будинків".
+# Runs on the assembled HTML but ONLY on text nodes — tags, attributes,
+# <script>, <style> and comments are left untouched. Idempotent (only plain
+# spaces are converted; existing &nbsp; / U+00A0 are skipped).
+NBSP = " "
+_PROTECT = re.compile(r"(<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->|<[^>]+>)",
+                      re.DOTALL | re.IGNORECASE)
+_LEAD = r'(?<![^\s(«"„])'                                  # preceded by a boundary or start
+_ONE = re.compile(_LEAD + r'([увійзоаУВІЙЗОА])[ \t]+(?=[^\s<])')
+_TWO = re.compile(_LEAD + r'(до|від|під|над|при|із|зі|До|Від|Під|Над|При|Із|Зі)[ \t]+(?=[^\s<])')
+_NUM = re.compile(r'(\d)[ \t]+(?=[0-9A-Za-zА-Яа-яІЇЄҐіїєґ°])')  # 7 будинків, 2026 Doberman, 10 000
+_SIGN = re.compile(r'([©№§])[ \t]+(?=\d)')                 # © 2026, № 3
+_ABBR = re.compile(r'(\b(?:вул|просп|пров|бул|наб|пл)\.)[ \t]+(?=[A-Za-zА-Яа-яІЇЄҐіїєґ])')
+_ARROW = re.compile(r'(\S)[ \t]+([↑↓→←])')                 # keep "нагору ↑" together
+
+def _glue(t):
+    t = _ONE.sub(lambda m: m.group(1) + NBSP, t)
+    t = _TWO.sub(lambda m: m.group(1) + NBSP, t)
+    t = _NUM.sub(lambda m: m.group(1) + NBSP, t)
+    t = _SIGN.sub(lambda m: m.group(1) + NBSP, t)
+    t = _ABBR.sub(lambda m: m.group(1) + NBSP, t)
+    t = _ARROW.sub(lambda m: m.group(1) + NBSP + m.group(2), t)
+    return t
+
+def typographer(html):
+    parts = _PROTECT.split(html)      # even idx = text nodes, odd = protected delimiters
+    for i in range(0, len(parts), 2):
+        if parts[i]:
+            parts[i] = _glue(parts[i])
+    return "".join(parts)
+
 def render(cfg):
     s = resolve_includes(rd(cfg["src"]))
     for k, v in cfg["vars"].items():
         s = s.replace("{{%s}}" % k, v)
+    s = typographer(s)
     s = s.replace("<head>", "<head>\n" + BANNER, 1)
     leftover = re.findall(r"\{\{[A-Z_]+\}\}|<!--#include", s)
     if leftover:
